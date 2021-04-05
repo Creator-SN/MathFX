@@ -17,8 +17,10 @@ catch {
 
 import { execFile } from "child_process"
 import path from 'path'
-import fs from 'fs'
+import fs from 'fs-extra'
 import ini from "ini"
+
+import db from '@/js/datastore.js'
 // 修改默认配置,确保用户无感知
 let config_ini = path.join(
     __static,
@@ -56,6 +58,8 @@ Vue.use(VueAxios, axios)
 Vue.use(VueFluent);
 
 Vue.config.productionTip = false
+
+Vue.prototype.$db = db;
 
 new Vue({
     router,

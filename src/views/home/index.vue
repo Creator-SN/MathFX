@@ -81,19 +81,24 @@ export default {
                 times: 0,
             },
             snip_timer: null,
+            one_times_lock: false,
             options: [
                 {
                     name: "Cut",
                     icon: "Cut",
                     func: () => {
-                        console.log(__static)
+                        if (this.one_times_lock) {
+                            this.$barWarning("请求中，请稍后", {
+                                status: "warning",
+                            });
+                            return;
+                        }
+                        this.one_times_lock = true;
                         let snip = execFile(
                             path.join(__static, "../Snipaste/Snipaste.exe"),
                             ["snip", "-o", "clipboard"]
                         );
-                        console.log(snip)
                         snip.on("exit", (code) => {
-                            console.log(code)
                             if (code == 0) {
                                 let max_times = this.config.max_times
                                     ? this.config.max_times
@@ -170,77 +175,18 @@ export default {
                                             });
                                         clipboard.clear();
                                         clearInterval(this.snip_timer);
+                                        this.one_times_lock = false;
                                     }
                                     cnt--;
                                     if (cnt == 0) {
+                                        this.one_times_lock = false;
                                         clearInterval(this.snip_timer);
                                     }
                                 }, 1000);
+                            } else {
+                                this.one_times_lock = false;
                             }
                         });
-                        // snip.on("exit", (code) => {
-                        //     if (code == 0) {
-                        //         let image = clipboard.readImage("clipboard");
-                        //         this.axios
-                        //             .post(
-                        //                 "https://api.mathpix.com/v3/text",
-                        //                 {
-                        //                     src: image.toDataURL(),
-                        //                     formats: [
-                        //                         "text",
-                        //                         "data",
-                        //                         "html",
-                        //                         "latex_styled",
-                        //                         "line_data",
-                        //                         "word_data",
-                        //                         "detected_alphabets",
-                        //                     ],
-                        //                     data_options: {
-                        //                         include_asciimath: true,
-                        //                         include_latex: true,
-                        //                         include_svg: true,
-                        //                         include_tsv: true,
-                        //                         include_mathml: true,
-                        //                         include_table_html: true,
-                        //                     },
-                        //                 },
-                        //                 {
-                        //                     headers: {
-                        //                         app_id: this.config.app_id,
-                        //                         app_key: this.config.app_key,
-                        //                         "Content-Type":
-                        //                             "application/json",
-                        //                     },
-                        //                 }
-                        //             )
-                        //             .then(({ data }) => {
-                        //                 this.config.times++;
-                        //                 this.save_ini();
-                        //                 this.latex = `$$${data.latex_styled}$$`;
-                        //                 this.fomulate = data
-                        //                 this.render_mathpix();
-                        //             })
-                        //             .catch(({ response }) => {
-                        //                 this.$barWarning(response.data.error, {
-                        //                     status: "error",
-                        //                 });
-                        //             });
-                        //         // 测试数据
-                        //         // let data = fs.readFileSync(
-                        //         //     path.join(__static, "./temp.json"),
-                        //         //     "utf-8"
-                        //         // );
-                        //         // console.log(data);
-                        //         // data = JSON.parse(data);
-                        //         // this.latex = `$$${data.latex_styled}$$`;
-                        //         // this.fomulate = data;
-                        //         // this.render_mathpix();
-                        //     } else {
-                        //         this.$barWarning("贴图程序启动异常", {
-                        //             status: "error",
-                        //         });
-                        //     }
-                        // });
                     },
                 },
                 {
@@ -273,6 +219,8 @@ export default {
             toggleTheme: "toggleTheme",
         }),
         init() {
+            // 清空默认的剪切板
+            clipboard.clear();
             let config_ini = path.join(__static, "./config.ini");
             let config = ini.parse(fs.readFileSync(config_ini, "utf-8"));
             this.config = config;
@@ -317,14 +265,14 @@ export default {
     .origin {
         margin-bottom: 10px;
         max-height: 200px;
-        overflow:auto;
+        overflow: auto;
     }
     .math {
         box-sizing: border-box;
         position: relative;
         min-height: 60px;
         max-width: 100%;
-        overflow:auto;
+        overflow: auto;
         margin: 0;
     }
     .tool-bar {

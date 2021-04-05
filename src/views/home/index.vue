@@ -86,11 +86,14 @@ export default {
                     name: "Cut",
                     icon: "Cut",
                     func: () => {
+                        console.log(__static)
                         let snip = execFile(
-                            path.join(__static, "./Snipaste/Snipaste.exe"),
+                            path.join(__static, "../Snipaste/Snipaste.exe"),
                             ["snip", "-o", "clipboard"]
                         );
+                        console.log(snip)
                         snip.on("exit", (code) => {
+                            console.log(code)
                             if (code == 0) {
                                 let max_times = this.config.max_times
                                     ? this.config.max_times
@@ -314,15 +317,14 @@ export default {
     .origin {
         margin-bottom: 10px;
         max-height: 200px;
-        overflow: scroll;
-        overflow-x: auto;
+        overflow:auto;
     }
     .math {
         box-sizing: border-box;
         position: relative;
         min-height: 60px;
         max-width: 100%;
-        overflow-x: auto;
+        overflow:auto;
         margin: 0;
     }
     .tool-bar {

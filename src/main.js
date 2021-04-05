@@ -22,7 +22,7 @@ import ini from "ini"
 // 修改默认配置,确保用户无感知
 let config_ini = path.join(
     __static,
-    "./Snipaste/config.ini"
+    "../Snipaste/config.ini"
 );
 let config = {
     General: {
@@ -34,11 +34,10 @@ let config = {
         ask_for_confirm_on_esc: false
     }
 }
-console.log(ini.stringify(config))
 
 fs.writeFileSync(config_ini, ini.stringify(config));
 // 首次启动
-execFile(path.join(__static, "./Snipaste/Snipaste.exe"))
+execFile(path.join(__static, "../Snipaste/Snipaste.exe"))
 
 import Vue from 'vue'
 import App from './App.vue'

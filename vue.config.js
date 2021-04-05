@@ -28,7 +28,11 @@ module.exports = {
     },
     pluginOptions: {    // necessary plugins
         electronBuilder: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            // https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/881
+            builderOptions: {
+                extraResources: ['./Snipaste']
+            }
         }
     }
 };

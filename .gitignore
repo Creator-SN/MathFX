@@ -24,6 +24,6 @@ pnpm-debug.log*
 *.sw?
 
 # public
-public/Snipaste
+**/Snipaste/*
 public/config.ini
 public/temp.json

@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, BrowserWindow } from 'electron'
+import { app, protocol, ipcMain, BrowserWindow,globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -15,7 +15,7 @@ async function createWindow() {
     // Create the browser window.
     const win = new BrowserWindow({
         frame: false,
-        width: 800,
+        width: isDevelopment?800:480,
         height: 600,
         webPreferences: {
             // Use pluginOptions.nodeIntegration, leave this alone
@@ -79,6 +79,11 @@ app.on('ready', async () => {
         }
     }
     createWindow()
+
+    globalShortcut.register('CommandOrControl+Shift+L', () => {
+        let focusWin = BrowserWindow.getFocusedWindow()
+        focusWin && focusWin.toggleDevTools()
+      })
 })
 
 // Exit cleanly on request from parent process in development mode.

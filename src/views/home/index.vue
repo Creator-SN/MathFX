@@ -112,7 +112,7 @@ export default {
                                 if (this.snip_timer) {
                                     clearInterval(this.snip_timer);
                                 }
-                                this._snip_timer = setInterval(() => {
+                                this.snip_timer = setInterval(() => {
                                     let image = clipboard.readImage(
                                         "clipboard"
                                     );

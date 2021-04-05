@@ -1,7 +1,8 @@
 <template>
     <div class="container" :class="[theme]">
         <div class="origin">
-            <fv-img-box v-if="origin.length > 0" :url="origin"> </fv-img-box>
+            <fv-img-box :theme="theme" v-if="origin.length > 0" :url="origin">
+            </fv-img-box>
         </div>
         <div ref="math" class="math" v-html="latex"></div>
         <div class="state">
@@ -70,8 +71,7 @@ export default {
     name: "Home",
     data() {
         return {
-            latex:
-                "$$\\lim _{x \\rightarrow 3}\\left(\\frac{x^{2}+9}{x-3}\\right)$$",
+            latex: "$$$$",
             fomulate: {
                 is_handwritten: false,
                 confidence: 0,
@@ -80,6 +80,7 @@ export default {
             config: {
                 times: 0,
             },
+            snip_timer: null,
             options: [
                 {
                     name: "Cut",
@@ -91,20 +92,85 @@ export default {
                         );
                         snip.on("exit", (code) => {
                             if (code == 0) {
+                                let max_times = this.config.max_times
+                                    ? this.config.max_times
+                                    : 990;
+                                if (this.config.times > max_times) {
+                                    this.$barWarning(
+                                        `API使用次数已经超过${this.config.times}`,
+                                        {
+                                            status: "error",
+                                        }
+                                    );
+                                    return;
+                                }
+                                // 默认十次获取截屏
                                 let cnt = 10;
-                                let tryGet =  setInterval(() => {
+                                if (this.snip_timer) {
+                                    clearInterval(this.snip_timer);
+                                }
+                                this._snip_timer = setInterval(() => {
                                     let image = clipboard.readImage(
                                         "clipboard"
                                     );
-                                    if (!image.isEmpty()){
-                                        console.log("empty")
+                                    if (!image.isEmpty()) {
                                         this.origin = image.toDataURL();
+                                        // 发送请求
+                                        this.axios
+                                            .post(
+                                                "https://api.mathpix.com/v3/text",
+                                                {
+                                                    src: this.origin,
+                                                    formats: [
+                                                        "text",
+                                                        "data",
+                                                        "html",
+                                                        "latex_styled",
+                                                        "line_data",
+                                                        "word_data",
+                                                        "detected_alphabets",
+                                                    ],
+                                                    data_options: {
+                                                        include_asciimath: true,
+                                                        include_latex: true,
+                                                        include_svg: true,
+                                                        include_tsv: true,
+                                                        include_mathml: true,
+                                                        include_table_html: true,
+                                                    },
+                                                },
+                                                {
+                                                    headers: {
+                                                        app_id: this.config
+                                                            .app_id,
+                                                        app_key: this.config
+                                                            .app_key,
+                                                        "Content-Type":
+                                                            "application/json",
+                                                    },
+                                                }
+                                            )
+                                            .then(({ data }) => {
+                                                this.config.times++;
+                                                this.save_ini();
+                                                this.latex = `$$${data.latex_styled}$$`;
+                                                this.fomulate = data;
+                                                this.render_mathpix();
+                                            })
+                                            .catch(({ response }) => {
+                                                this.$barWarning(
+                                                    response.data.error,
+                                                    {
+                                                        status: "error",
+                                                    }
+                                                );
+                                            });
                                         clipboard.clear();
-                                        clearInterval(tryGet)
+                                        clearInterval(this.snip_timer);
                                     }
                                     cnt--;
-                                    if (cnt==0){
-                                        clearInterval(tryGet)
+                                    if (cnt == 0) {
+                                        clearInterval(this.snip_timer);
                                     }
                                 }, 1000);
                             }
@@ -188,6 +254,11 @@ export default {
         this.init();
         this.render_mathpix();
     },
+    beforeDestroy() {
+        if (this.snip_timer) {
+            clearInterval(this.snip_timer);
+        }
+    },
     computed: {
         ...mapState({
             mathjax: (state) => state.mathjax,
@@ -204,6 +275,9 @@ export default {
             this.config = config;
             this.config.times = parseInt(
                 this.config.times ? this.config.times : 0
+            );
+            this.config.max_times = parseInt(
+                this.config.max_times ? this.config.max_times : 990
             );
         },
         save_ini() {
@@ -237,15 +311,18 @@ export default {
         background: black;
         color: white;
     }
-    .origin{
-        margin-bottom:10px;
+    .origin {
+        margin-bottom: 10px;
         max-height: 200px;
         overflow: scroll;
-        overflow-x:auto;
+        overflow-x: auto;
     }
     .math {
         box-sizing: border-box;
         position: relative;
+        min-height: 60px;
+        max-width: 100%;
+        overflow-x: auto;
         margin: 0;
     }
     .tool-bar {

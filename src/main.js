@@ -24,11 +24,18 @@ let config_ini = path.join(
     __static,
     "./Snipaste/config.ini"
 );
-let config = ini.parse(
-    fs.readFileSync(config_ini, "utf-8")
-);
-config.General.startup_fix = 2;
-config.General.hide_tray_icon = true;
+let config = {
+    General: {
+        language: "en",
+        startup_fix: 2,
+        hide_tray_icon: true,
+    },
+    Snip: {
+        ask_for_confirm_on_esc: false
+    }
+}
+console.log(ini.stringify(config))
+
 fs.writeFileSync(config_ini, ini.stringify(config));
 // 首次启动
 execFile(path.join(__static, "./Snipaste/Snipaste.exe"))

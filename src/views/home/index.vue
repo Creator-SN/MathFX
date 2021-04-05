@@ -64,7 +64,7 @@
 import { execFile } from "child_process";
 import path from "path";
 import { clipboard } from "electron";
-import fs from "fs";
+import fs from "fs-extra";
 import ini from "ini";
 import { mapMutations, mapState } from "vuex";
 export default {

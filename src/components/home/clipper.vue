@@ -1,5 +1,5 @@
 <template>
-    <div class="clipper-container">
+    <div class="clipper-container" :class="[theme]">
         <div class="origin">
             <fv-img-box :theme="theme" v-if="origin.length > 0" :url="origin">
             </fv-img-box>
@@ -68,6 +68,11 @@ import fs from "fs-extra";
 import ini from "ini";
 import { mapMutations, mapState } from "vuex";
 export default {
+    props: {
+        theme: {
+            default: "light",
+        },
+    },
     data() {
         return {
             latex: "",
@@ -79,7 +84,6 @@ export default {
             config: {
                 times: 0,
             },
-            snip_timer: null,
             one_times_lock: false,
             options: [
                 {
@@ -87,18 +91,18 @@ export default {
                     icon: "Cut",
                     func: () => {
                         if (this.one_times_lock) {
-                            this.$barWarning("正在处理中",{
-                                status:"warning"
-                            })
+                            this.$barWarning("正在处理中", {
+                                status: "warning",
+                            });
                             return;
                         }
                         this.one_times_lock = true;
+                        let app_root = path.join(__static, "../capture/");
                         let snip = execFile(
-                            path.join(__static, "../Snipaste/Snipaste.exe"),
-                            ["snip", "-o", "clipboard"]
+                            path.join(app_root, "./PrintScr.exe")
                         );
                         snip.on("exit", (code) => {
-                            if (code == 0) {
+                            if (code == 1) {
                                 let max_times = this.config.max_times
                                     ? this.config.max_times
                                     : 990;
@@ -111,79 +115,70 @@ export default {
                                     );
                                     return;
                                 }
-                                // 默认十次获取截屏
-                                let cnt = 10;
-                                if (this.snip_timer) {
-                                    clearInterval(this.snip_timer);
-                                }
-                                this.snip_timer = setInterval(() => {
-                                    let image = clipboard.readImage(
-                                        "clipboard"
-                                    );
-                                    if (!image.isEmpty()) {
-                                        this.origin = image.toDataURL();
-                                        // 发送请求
-                                        this.axios
-                                            .post(
-                                                "https://api.mathpix.com/v3/text",
-                                                {
-                                                    src: this.origin,
-                                                    formats: [
-                                                        "text",
-                                                        "data",
-                                                        "html",
-                                                        "latex_styled",
-                                                        "line_data",
-                                                        "word_data",
-                                                        "detected_alphabets",
-                                                    ],
-                                                    data_options: {
-                                                        include_asciimath: true,
-                                                        include_latex: true,
-                                                        include_svg: true,
-                                                        include_tsv: true,
-                                                        include_mathml: true,
-                                                        include_table_html: true,
-                                                    },
+                                let image = clipboard.readImage("clipboard");
+                                if (!image.isEmpty()) {
+                                    this.origin = image.toDataURL();
+                                    // 发送请求
+                                    this.axios
+                                        .post(
+                                            "https://api.mathpix.com/v3/text",
+                                            {
+                                                src: this.origin,
+                                                formats: [
+                                                    "text",
+                                                    "data",
+                                                    "html",
+                                                    "latex_styled",
+                                                    "line_data",
+                                                    "word_data",
+                                                    "detected_alphabets",
+                                                ],
+                                                data_options: {
+                                                    include_asciimath: true,
+                                                    include_latex: true,
+                                                    include_svg: true,
+                                                    include_tsv: true,
+                                                    include_mathml: true,
+                                                    include_table_html: true,
                                                 },
+                                            },
+                                            {
+                                                headers: {
+                                                    app_id: this.config.app_id,
+                                                    app_key: this.config
+                                                        .app_key,
+                                                    "Content-Type":
+                                                        "application/json",
+                                                },
+                                            }
+                                        )
+                                        .then(({ data }) => {
+                                            this.config.times++;
+                                            this.save_ini();
+                                            this.latex = `$$${data.latex_styled}$$`;
+                                            this.fomulate = data;
+                                            this.render_mathpix();
+                                            this.one_times_lock = false;
+                                        })
+                                        .catch(({ response }) => {
+                                            this.$barWarning(
+                                                response.data.error,
                                                 {
-                                                    headers: {
-                                                        app_id: this.config
-                                                            .app_id,
-                                                        app_key: this.config
-                                                            .app_key,
-                                                        "Content-Type":
-                                                            "application/json",
-                                                    },
+                                                    status: "error",
                                                 }
-                                            )
-                                            .then(({ data }) => {
-                                                this.config.times++;
-                                                this.save_ini();
-                                                this.latex = `$$${data.latex_styled}$$`;
-                                                this.fomulate = data;
-                                                this.render_mathpix();
-                                                this.one_times_lock = false;
-                                            })
-                                            .catch(({ response }) => {
-                                                this.$barWarning(
-                                                    response.data.error,
-                                                    {
-                                                        status: "error",
-                                                    }
-                                                );
-                                                this.one_times_lock = false;
-                                            });
-                                        clearInterval(this.snip_timer);
-                                        clipboard.clear();
-                                    }
-                                    cnt--;
-                                    if (cnt == 0) {
-                                        clearInterval(this.snip_timer);
-                                        this.one_times_lock = false;
-                                    }
-                                }, 1000);
+                                            );
+                                            this.one_times_lock = false;
+                                        });
+                                } else {
+                                    this.$barWarning("截屏退出", {
+                                        status: "warning",
+                                    });
+                                    this.one_times_lock = false;
+                                }
                             } else {
+                                this.$barWarning("未获取到截屏", {
+                                    status: "warning",
+                                });
                                 this.one_times_lock = false;
                             }
                         });
@@ -203,15 +198,10 @@ export default {
         this.init();
         this.render_mathpix();
     },
-    beforeDestroy() {
-        if (this.snip_timer) {
-            clearInterval(this.snip_timer);
-        }
-    },
+    beforeDestroy() {},
     computed: {
         ...mapState({
             mathjax: (state) => state.mathjax,
-            theme: (state) => state.theme,
         }),
     },
     methods: {
@@ -219,8 +209,6 @@ export default {
             toggleTheme: "toggleTheme",
         }),
         init() {
-            // 清空默认的剪切板
-            clipboard.clear();
             let config_ini = path.join(__static, "./config.ini");
             let config = ini.parse(fs.readFileSync(config_ini, "utf-8"));
             this.config = config;
@@ -258,5 +246,9 @@ export default {
     width: 100%;
     height: 100%;
     background: whitesmoke;
+    &.dark {
+        color: white;
+        background: black;
+    }
 }
 </style>

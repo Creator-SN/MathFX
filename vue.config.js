@@ -31,7 +31,7 @@ module.exports = {
             nodeIntegration: true,
             // https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/881
             builderOptions: {
-                extraResources: ['./Snipaste']
+                extraResources: ['./capture']
             }
         }
     }

@@ -1,28 +1,41 @@
 <template>
-<div class="main-container">
-    <div class="hud-container">
-        <clipper></clipper>
-    </div>
-    <div class="control-container">
-        <div class="left-bar"></div>
-        <div class="mid-bar">
-            <fv-button theme="dark" foreground="rgba(242, 242, 242, 0.8)" background="rgba(27, 96, 147, 0.3)" fontSize="28" borderRadius="50" style="width: 50px; height: 50px;">
-                <i class="ms-Icon ms-Icon--AddTo"></i>
-            </fv-button>
+    <div class="main-container">
+        <div class="hud-container">
+            <clipper :theme="theme"></clipper>
         </div>
-        <div class="right-bar"></div>
+        <div class="control-container">
+            <div class="left-bar"></div>
+            <div class="mid-bar">
+                <fv-button
+                    theme="dark"
+                    foreground="rgba(242, 242, 242, 0.8)"
+                    background="rgba(27, 96, 147, 0.3)"
+                    fontSize="28"
+                    borderRadius="50"
+                    style="width: 50px; height: 50px"
+                >
+                    <i class="ms-Icon ms-Icon--AddTo"></i>
+                </fv-button>
+            </div>
+            <div class="right-bar"></div>
+        </div>
     </div>
-</div>
 </template>
 
 <script>
 import clipper from "@/components/home/clipper.vue";
+import { mapState } from "vuex";
 
 export default {
     components: {
-        clipper
+        clipper,
     },
-    data () {
+    props: {
+        ...mapState({
+            theme: (state) => state.theme,
+        }),
+    },
+    data() {
         return {
             navigationOptions: [
                 { name: "Fruits", type: "header" },
@@ -34,16 +47,15 @@ export default {
                 { name: "Vegetables", type: "header" },
                 { name: "Broccoli", icon: "QuadColumn" },
                 { name: "Carrot", icon: "Quantity" },
-                { name: "Lettuce", icon: "TestBeaker" }
-            ]
-        }
-    }
-}
+                { name: "Lettuce", icon: "TestBeaker" },
+            ],
+        };
+    },
+};
 </script>
 
 <style lang="scss">
-.main-container
-{
+.main-container {
     position: relative;
     width: 100%;
     height: 100%;
@@ -51,13 +63,11 @@ export default {
     flex-direction: column;
     overflow: hidden;
 
-    .hud-container
-    {
+    .hud-container {
         flex: 1;
     }
 
-    .control-container
-    {
+    .control-container {
         position: relative;
         width: 100%;
         height: 120px;
@@ -69,8 +79,7 @@ export default {
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
 
-        .mid-bar
-        {
+        .mid-bar {
             position: relative;
             width: 50%;
             height: 100%;

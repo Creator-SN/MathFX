@@ -38,7 +38,32 @@ function init_db_file() {
 function init_db() {
     if (!db.has('init_status').value()) { // 先判断该值存不存在
         db.defaults({
-            init_status: true
+            init_status: true,
+            subscriptions: [
+                {
+                    name: 'baidu',
+                    title: 'Baidu API',
+                    data: [
+                        { name: 'Url', key: 'url', value: '' },
+                        { name: 'App ID', key: 'app_id', value: '' },
+                        { name: 'Key', key: 'app_key', value: '' }
+                    ]
+                },
+                {
+                    name: 'mathpix',
+                    title: 'MathPix API',
+                    data: [
+                        { name: 'Url', key: 'url', value: '' },
+                        { name: 'App ID', key: 'app_id', value: '' },
+                        { name: 'Key', key: 'app_key', value: '' }
+                    ]
+                }
+            ],
+            cur_sub: 0,
+            history: [
+                
+            ],
+            theme: "light"
         })
             .write()
     }

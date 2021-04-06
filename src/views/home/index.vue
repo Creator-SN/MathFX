@@ -1,7 +1,7 @@
 <template>
     <div class="main-container">
         <div class="hud-container">
-            <clipper :theme="theme"></clipper>
+            <clipper :theme="theme" ref="clipper"></clipper>
         </div>
         <div class="control-container">
             <div class="left-bar"></div>
@@ -13,6 +13,7 @@
                     fontSize="28"
                     borderRadius="50"
                     style="width: 50px; height: 50px"
+                    @click="op"
                 >
                     <i class="ms-Icon ms-Icon--AddTo"></i>
                 </fv-button>
@@ -37,20 +38,14 @@ export default {
     },
     data() {
         return {
-            navigationOptions: [
-                { name: "Fruits", type: "header" },
-                { name: "Apple", icon: "WindowsLogo" },
-                { name: "Banana", icon: "DelveAnalyticsLogo" },
-                { name: "Orange", icon: "Guitar" },
-                { name: "Grape", icon: "HailDay" },
-                { name: "", type: "divider" },
-                { name: "Vegetables", type: "header" },
-                { name: "Broccoli", icon: "QuadColumn" },
-                { name: "Carrot", icon: "Quantity" },
-                { name: "Lettuce", icon: "TestBeaker" },
-            ],
+            
         };
     },
+    methods: {
+        op () {
+            this.$refs.clipper.get_mathpix();
+        }
+    }
 };
 </script>
 

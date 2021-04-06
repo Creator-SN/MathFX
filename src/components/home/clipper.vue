@@ -10,16 +10,6 @@
                 <fv-text-box
                     :theme="theme"
                     class="input"
-                    prefix="已使用次数"
-                    readonly
-                    :value="config.times + ''"
-                >
-                </fv-text-box>
-            </div>
-            <div class="item">
-                <fv-text-box
-                    :theme="theme"
-                    class="input"
                     prefix="是否手写"
                     readonly
                     :value="fomulate.is_handwritten ? '是' : '否'"
@@ -52,11 +42,6 @@
                 ></fv-button>
             </div>
         </div>
-        <fv-command-bar
-            :theme="theme"
-            class="tool-bar"
-            :options="options"
-        ></fv-command-bar>
     </div>
 </template>
 
@@ -64,9 +49,8 @@
 import { execFile } from "child_process";
 import path from "path";
 import { clipboard } from "electron";
-import fs from "fs-extra";
-import ini from "ini";
 import { mapMutations, mapState } from "vuex";
+
 export default {
     props: {
         theme: {
@@ -81,147 +65,29 @@ export default {
                 confidence: 0,
             },
             origin: "",
-            config: {
-                times: 0,
-            },
-            one_times_lock: false,
-            options: [
-                {
-                    name: "Cut",
-                    icon: "Cut",
-                    func: () => {
-                        if (this.one_times_lock) {
-                            this.$barWarning("正在处理中", {
-                                status: "warning",
-                            });
-                            return;
-                        }
-                        this.one_times_lock = true;
-                        let app_root = path.join(__static, "../capture/");
-                        let snip = execFile(
-                            path.join(app_root, "./PrintScr.exe")
-                        );
-                        snip.on("exit", (code) => {
-                            if (code == 1) {
-                                let max_times = this.config.max_times
-                                    ? this.config.max_times
-                                    : 990;
-                                if (this.config.times > max_times) {
-                                    this.$barWarning(
-                                        `API使用次数已经超过${this.config.times}`,
-                                        {
-                                            status: "error",
-                                        }
-                                    );
-                                    return;
-                                }
-                                let image = clipboard.readImage("clipboard");
-                                if (!image.isEmpty()) {
-                                    this.origin = image.toDataURL();
-                                    // 发送请求
-                                    this.axios
-                                        .post(
-                                            "https://api.mathpix.com/v3/text",
-                                            {
-                                                src: this.origin,
-                                                formats: [
-                                                    "text",
-                                                    "data",
-                                                    "html",
-                                                    "latex_styled",
-                                                    "line_data",
-                                                    "word_data",
-                                                    "detected_alphabets",
-                                                ],
-                                                data_options: {
-                                                    include_asciimath: true,
-                                                    include_latex: true,
-                                                    include_svg: true,
-                                                    include_tsv: true,
-                                                    include_mathml: true,
-                                                    include_table_html: true,
-                                                },
-                                            },
-                                            {
-                                                headers: {
-                                                    app_id: this.config.app_id,
-                                                    app_key: this.config
-                                                        .app_key,
-                                                    "Content-Type":
-                                                        "application/json",
-                                                },
-                                            }
-                                        )
-                                        .then(({ data }) => {
-                                            this.config.times++;
-                                            this.save_ini();
-                                            this.latex = `$$${data.latex_styled}$$`;
-                                            this.fomulate = data;
-                                            this.render_mathpix();
-                                            this.one_times_lock = false;
-                                        })
-                                        .catch(({ response }) => {
-                                            this.$barWarning(
-                                                response.data.error,
-                                                {
-                                                    status: "error",
-                                                }
-                                            );
-                                            this.one_times_lock = false;
-                                        });
-                                } else {
-                                    this.$barWarning("截屏退出", {
-                                        status: "warning",
-                                    });
-                                    this.one_times_lock = false;
-                                }
-                            } else {
-                                this.$barWarning("未获取到截屏", {
-                                    status: "warning",
-                                });
-                                this.one_times_lock = false;
-                            }
-                        });
-                    },
-                },
-                {
-                    name: "Theme",
-                    icon: "Light",
-                    func: () => {
-                        this.toggleTheme();
-                    },
-                },
-            ],
+            one_times_lock: false
         };
     },
     mounted() {
-        this.init();
         this.render_mathpix();
     },
     beforeDestroy() {},
     computed: {
         ...mapState({
             mathjax: (state) => state.mathjax,
+            cur_sub: state => state.cur_sub,
+            subscriptions: state => state.subscriptions
         }),
+        s () {
+            return this.subscriptions[this.cur_sub];
+        }
     },
     methods: {
         ...mapMutations({
             toggleTheme: "toggleTheme",
         }),
-        init() {
-            let config_ini = path.join(__static, "./config.ini");
-            let config = ini.parse(fs.readFileSync(config_ini, "utf-8"));
-            this.config = config;
-            this.config.times = parseInt(
-                this.config.times ? this.config.times : 0
-            );
-            this.config.max_times = parseInt(
-                this.config.max_times ? this.config.max_times : 990
-            );
-        },
-        save_ini() {
-            let config_ini = path.join(__static, "./config.ini");
-            fs.writeFileSync(config_ini, ini.stringify(this.config));
+        getFromData (key) {
+            return (this.s.data.find(item => item.key === key)).value;
         },
         render_mathpix() {
             if (this.mathjax) {
@@ -236,6 +102,100 @@ export default {
         copy_mathjax(val) {
             clipboard.writeText(val);
         },
+        async get_clip () {
+            if (this.one_times_lock) {
+                this.$barWarning("正在处理中", {
+                    status: "warning",
+                });
+                return -1;
+            }
+            this.one_times_lock = true;
+            let app_root = path.join(__static, "../capture/");
+            let snip = execFile(
+                path.join(app_root, "./PrintScr.exe")
+            );
+            return await new Promise(resolve => {
+                snip.on("exit", (code) => {
+                    if (code == 1) {
+                        let image = clipboard.readImage("clipboard");
+                        if (!image.isEmpty()) {
+                            let origin = image.toDataURL();
+                            this.one_times_lock = false;
+                            resolve(origin);
+                        } else {
+                            this.$barWarning("截屏退出", {
+                                status: "warning",
+                            });
+                            this.one_times_lock = false;
+                            resolve(-1);
+                        }
+                    } else {
+                        this.$barWarning("未获取到截屏", {
+                            status: "warning",
+                        });
+                        this.one_times_lock = false;
+                        resolve(-1);
+                    }
+                });
+            });
+        },
+        async get_mathpix () {
+            if (this.one_times_lock) {
+                this.$barWarning("正在处理中", {
+                    status: "warning",
+                });
+                return;
+            }
+            this.origin = await this.get_clip();
+            this.one_times_lock = true;
+            this.axios
+            .post(
+                this.getFromData("url"),
+                {
+                    src: this.origin,
+                    formats: [
+                        "text",
+                        "data",
+                        "html",
+                        "latex_styled",
+                        "line_data",
+                        "word_data",
+                        "detected_alphabets",
+                    ],
+                    data_options: {
+                        include_asciimath: true,
+                        include_latex: true,
+                        include_svg: true,
+                        include_tsv: true,
+                        include_mathml: true,
+                        include_table_html: true,
+                    },
+                },
+                {
+                    headers: {
+                        app_id: this.getFromData('app_id'),
+                        app_key: this.getFromData('app_key'),
+                        "Content-Type":
+                            "application/json",
+                    },
+                }
+            )
+            .then(({ data }) => {
+                this.latex = `$$${data.latex_styled}$$`;
+                this.fomulate = data;
+                this.render_mathpix();
+                this.one_times_lock = false;
+            })
+            .catch(({ response }) => {
+                this.$barWarning(
+                    response.data.error,
+                    {
+                        status: "error",
+                    }
+                );
+                this.one_times_lock = false;
+            });
+        }
     },
 };
 </script>

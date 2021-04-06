@@ -41,4 +41,15 @@ new Vue({
     router,
     store,
     render: h => h(App),
+    beforeCreate() {
+        Vue.prototype.$Go = str => {
+            this.$router.push(str);
+        };
+        Vue.prototype.$Back = () => {
+            this.$router.back();
+        };
+        Vue.prototype.$Jump = str => {
+            window.open(str);
+        };
+    },
 }).$mount('#app')

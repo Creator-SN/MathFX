@@ -1,10 +1,12 @@
 <template>
     <div id="app">
-        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0"></fv-navigation-view>
+        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :settingTitle="'设置'" @item-click="$Go($event.url)" @setting-click="$Go(`/settings`)"></fv-navigation-view>
         <div class="addition-container">
             <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
             <div class="global-container">
-                <router-view></router-view>
+                <transition name="move-bottom-to-top">
+                    <router-view></router-view>
+                </transition>
             </div>
         </div>
     </div>
@@ -12,7 +14,7 @@
 
 <script>
 import titleBar from "@/components/general/titleBar.vue";
-import { mapState } from 'vuex';
+import { mapMutations, mapState } from "vuex";
 
 export default {
     name: "App",
@@ -23,10 +25,9 @@ export default {
         return {
             navigationValue: {},
             navigationOptions: [
-                { name: "识别", icon: "WindowsLogo" },
-                { name: "API", icon: "DelveAnalyticsLogo" },
-                { name: "历史", icon: "Guitar" },
-                { name: "Grape", icon: "HailDay" }
+                { name: "识别", icon: "GenericScan", url: "/" },
+                { name: "API", icon: "Link", url: "/subscription" },
+                { name: "历史", icon: "History", url: "/" }
             ]
         }
     },
@@ -38,6 +39,72 @@ export default {
             if(this.theme == "light")
                 return "rgba(242, 242, 242, 0.8)";
             return "rgba(0, 0, 0, 0.8)"
+        }
+    },
+    mounted () {
+        this.syncDB();
+    },
+    methods: {
+        ...mapMutations({
+            toggleTheme: "toggleTheme",
+            reviseTheme: "reviseTheme",
+            reviseCurSub: "reviseCurSub",
+            reviseSubscriptions: "reviseSubscriptions"
+        }),
+        syncDB () {
+            let subscriptions = this.$db.get('subscriptions').write();
+            let cur_sub = this.$db.get('cur_sub').write();
+            let history = this.$db.get('subscriptions').write();
+            let theme = this.$db.get('theme').write();
+            if(!subscriptions)
+                this.reviseSubscriptions({
+                    v: this,
+                    subscriptions: [
+                        {
+                            name: 'baidu',
+                            title: 'Baidu API',
+                            data: [
+                                { name: 'Url', key: 'url', value: '' },
+                                { name: 'App ID', key: 'app_id', value: '' },
+                                { name: 'Key', key: 'app_key', value: '' }
+                            ]
+                        },
+                        {
+                            name: 'mathpix',
+                            title: 'MathPix API',
+                            data: [
+                                { name: 'Url', key: 'url', value: '' },
+                                { name: 'App ID', key: 'app_id', value: '' },
+                                { name: 'Key', key: 'app_key', value: '' }
+                            ]
+                        }
+                    ]
+                });
+            else
+                this.reviseSubscriptions({
+                    v: this,
+                    subscriptions: subscriptions
+                });
+            if(!cur_sub)
+                this.reviseCurSub({
+                    v: this,
+                    cur_sub: 0
+                });
+            else
+                this.reviseCurSub({
+                    v: this,
+                    cur_sub: cur_sub
+                });
+            if(!theme)
+                this.reviseTheme({
+                    v: this,
+                    theme: "light"
+                });
+            else
+                this.reviseTheme({
+                    v: this,
+                    theme: theme
+                });
         }
     }
 };
@@ -80,8 +147,24 @@ export default {
             position: relative;
             width: 100%;
             height: 100%;
-            display: flex;
             overflow: hidden;
+        }
+    }
+
+    .move-bottom-to-top-enter-active {
+        animation: moveFromBottom 0.25s ease both;
+    }
+    .move-bottom-to-top-leave-active {
+        animation: moveToTop 0.25s ease both;
+    }
+    @keyframes moveFromBottom {
+        from {
+            transform: translateY(30%);
+        }
+    }
+    @keyframes moveToTop {
+        to {
+            transform: translateY(-30%);
         }
     }
 }

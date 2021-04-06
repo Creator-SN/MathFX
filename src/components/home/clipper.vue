@@ -70,8 +70,6 @@ export default {
     },
     mounted() {
         this.render_mathpix();
-        console.log(this.mathjax)
-        console.log(this.mathjax.tex2svg('\frac{2}{1}'))
     },
     beforeDestroy() {},
     computed: {

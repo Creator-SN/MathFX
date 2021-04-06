@@ -38,7 +38,7 @@ export default {
     },
     data() {
         return {
-            
+            one_times_lock: false
         };
     },
     methods: {
@@ -120,6 +120,66 @@ export default {
                         app_key: this.getFromData('app_key'),
                         "Content-Type":
                             "application/json",
+                    },
+                }
+            )
+            .then(({ data }) => {
+                this.latex = `$$${data.latex_styled}$$`;
+                this.fomulate = data;
+                this.render_mathpix();
+                this.one_times_lock = false;
+            })
+            .catch(({ response }) => {
+                this.$barWarning(
+                    response.data.error,
+                    {
+                        status: "error",
+                    }
+                );
+                this.one_times_lock = false;
+            });
+        },
+        async get_baidu () {
+            if (this.one_times_lock) {
+                this.$barWarning("正在处理中", {
+                    status: "warning",
+                });
+                return;
+            }
+            this.origin = await this.get_clip();
+            this.one_times_lock = true;
+            let access_token = await new Promise(resolve => {
+                this.axios.post('https://aip.baidubce.com/oauth/2.0/token', {
+                    grant_type: 'client_credentials',
+                    client_id: this.getFromData("api_key"),
+                    client_secret: this.getFromData("secret_key")
+                }).
+                then(data => {
+                    resolve(data.access_token);
+                })
+                .catch(data => {
+                    this.$barWarning(
+                        JSON.stringify(data),
+                        {
+                            status: "error",
+                        }
+                    );
+                    resolve(false);
+                    this.one_times_lock = false;
+                })
+            });
+            if(access_token === false)
+                return 0;
+            this.axios
+            .post(
+                `${this.getFromData("url")}?access_token=${access_token}`,
+                {
+                    src: this.origin
+                },
+                {
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded",
                     },
                 }
             )

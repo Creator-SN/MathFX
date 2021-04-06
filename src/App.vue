@@ -65,8 +65,8 @@ export default {
                             title: 'Baidu API',
                             data: [
                                 { name: 'Url', key: 'url', value: '' },
-                                { name: 'App ID', key: 'app_id', value: '' },
-                                { name: 'Key', key: 'app_key', value: '' }
+                                { name: 'API Key', key: 'api_key', value: '' },
+                                { name: 'Secret Key', key: 'secret_key', value: '' }
                             ]
                         },
                         {

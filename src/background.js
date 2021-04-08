@@ -91,6 +91,10 @@ app.on('ready', async () => {
         let focusWin = BrowserWindow.getFocusedWindow()
         focusWin && focusWin.toggleDevTools()
     })
+
+    globalShortcut.register(process.platform === 'darwin' ? 'Alt+Cmd+M' : 'Alt+Shift+M', () => {
+        win.show();
+    })
 })
 
 let tray = null
@@ -101,7 +105,8 @@ app.whenReady().then(() => {
     });
     const contextMenu = Menu.buildFromTemplate([
         {
-            label: 'Main', click: () => {
+            label: 'Main',
+            click: () => {
                 win.show();
             }
         },

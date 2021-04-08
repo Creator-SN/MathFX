@@ -19,6 +19,11 @@ const routes = [
         component: () => AsyncLoad(import("@/views/subscription"))
     },
     {
+        path: "/history",
+        name: "History",
+        component: () => AsyncLoad(import("@/views/history"))
+    },
+    {
         path: "/settings",
         name: "Settings",
         component: () => AsyncLoad(import("@/views/settings"))

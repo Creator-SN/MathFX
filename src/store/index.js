@@ -9,6 +9,7 @@ export default new Vuex.Store({
         subscriptions: [],
         history: [],
         cur_sub: 0,
+        cur_h: 0,
         theme: 'light'
     },
     mutations: {
@@ -22,6 +23,10 @@ export default new Vuex.Store({
         reviseCurSub(state, obj) {
             state.cur_sub = obj.cur_sub;
             obj.v.$db.set('cur_sub', state.cur_sub).write();
+        },
+        reviseCurH(state, obj) {
+            state.cur_h = obj.cur_h;
+            obj.v.$db.set('cur_h', state.cur_h).write();
         },
         reviseSubscriptions(state, obj) {
             state.subscriptions = obj.subscriptions;

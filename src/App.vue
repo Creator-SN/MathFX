@@ -27,7 +27,7 @@ export default {
             navigationOptions: [
                 { name: "识别", icon: "GenericScan", url: "/" },
                 { name: "API", icon: "Link", url: "/subscription" },
-                { name: "历史", icon: "History", url: "/" }
+                { name: "历史", icon: "History", url: "/history" }
             ]
         }
     },
@@ -50,6 +50,7 @@ export default {
         ...mapMutations({
             toggleTheme: "toggleTheme",
             reviseTheme: "reviseTheme",
+            reviseCurH: "reviseCurH",
             reviseCurSub: "reviseCurSub",
             reviseHistory: "reviseHistory",
             reviseSubscriptions: "reviseSubscriptions"
@@ -60,6 +61,7 @@ export default {
         syncDB () {
             let subscriptions = this.$db.get('subscriptions').write();
             let cur_sub = this.$db.get('cur_sub').write();
+            let cur_h = this.$db.get('cur_h').write();
             let history = this.$db.get('history').write();
             let theme = this.$db.get('theme').write();
             if(!subscriptions)
@@ -100,6 +102,16 @@ export default {
                 this.reviseCurSub({
                     v: this,
                     cur_sub: cur_sub
+                });
+            if(!cur_h)
+                this.reviseCurH({
+                    v: this,
+                    cur_h: 0
+                });
+            else
+                this.reviseCurH({
+                    v: this,
+                    cur_h: cur_h
                 });
             if(!history)
                 this.reviseHistory({

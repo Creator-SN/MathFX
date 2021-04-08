@@ -60,6 +60,7 @@ function init_db() {
                 }
             ],
             cur_sub: 0,
+            cur_h: 0,
             history: [
                 
             ],

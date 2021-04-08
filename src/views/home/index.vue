@@ -1,7 +1,7 @@
 <template>
     <div class="main-container">
         <div class="hud-container">
-            <displayer :theme="theme" :value="history[history.length - 1]" ref="displayer"></displayer>
+            <displayer :theme="theme" :value="history[cur_h]" ref="displayer"></displayer>
         </div>
         <div class="control-container">
             <div class="left-bar"></div>
@@ -43,6 +43,7 @@ export default {
         ...mapState({
             mathjax: (state) => state.mathjax,
             cur_sub: state => state.cur_sub,
+            cur_h: state => state.cur_h,
             history: state => state.history,
             subscriptions: state => state.subscriptions,
             theme: (state) => state.theme
@@ -53,14 +54,14 @@ export default {
     },
     data() {
         return {
+            ops: [this.get_baidu, this.get_mathpix],
             cur_latex: "",
             one_times_lock: false
         };
     },
     methods: {
         op () {
-            let ops = [this.get_baidu, this.get_mathpix];
-            ops[this.cur_sub]();
+            this.ops[this.cur_sub]();
         },
         async get_clip () {
             if (this.one_times_lock) {
@@ -105,6 +106,8 @@ export default {
         async render_mathpix() {
             return await new Promise(resolve => {
                 if (this.mathjax) {
+                    // 这步是必须的, 因为在cur_latex修改后, this.$refs.placeholder似乎还没有立即进行值的同步, 需要强制修改为新的内容 //
+                    this.$refs.placeholder.innerText = this.cur_latex;
                     this.$nextTick(() => {
                         this.mathjax.Hub.Queue(
                             ["Typeset", this.mathjax.Hub, this.$refs.placeholder],
@@ -119,28 +122,28 @@ export default {
             });
         },
         async return_svg () {
-            let svg = this.$refs.placeholder.querySelectorAll("svg")[0];
-            if(!svg)
-                return;
-            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-            let output = svg.outerHTML;
-            let image = new Image();
-            image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(output)));
-            output = await new Promise(resolve => {
-                image.onload = () => {
-                    let canvas = document.createElement('canvas');
-                    canvas.width = image.width;
-                    canvas.height = image.height;
-                    let context = canvas.getContext('2d');
-                    context.drawImage(image, 0, 0);
-                    let o = canvas.toDataURL('image/png');
-                    resolve(o);
-                }
-            })
-            return {
-                svg: image.src,
-                png: output
-            };
+            let result = await new Promise(resolve => {
+                this.$nextTick(() => {
+                    let svg = this.$refs.placeholder.querySelectorAll("svg")[0];
+                    if(!svg)
+                        return;
+                    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                    let output = svg.outerHTML;
+                    let image = new Image();
+                    image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(output)));
+                    
+                    image.onload = () => {
+                        let canvas = document.createElement('canvas');
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        let context = canvas.getContext('2d');
+                        context.drawImage(image, 0, 0);
+                        let o = canvas.toDataURL('image/png');
+                        resolve({ svg: image.src, png: o});
+                    }
+                });
+            });
+            return result;
         },
         async return_mathml () {
             return await new Promise(resolve => {

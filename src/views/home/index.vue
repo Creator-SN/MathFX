@@ -243,9 +243,7 @@ export default {
                         this.cur_latex = `$$${data.latex_styled}$$`;
                         await this.render_mathpix();
                         let mathml = await this.return_mathml();
-                        console.log(mathml)
                         let imgs = await this.return_svg();
-                        console.log(imgs)
                         let h = {
                             guid: this.$SUtility.Guid(),
                             latex_bare,
@@ -257,12 +255,10 @@ export default {
                             src: this.origin,
                             date: this.$SDate.DateToString(new Date()),
                         };
-                        console.log("test2")
                         this.$store.commit("addHistory", {
                             v: this,
                             h,
                         });
-                        console.log("test")
                         this.one_times_lock = false;
                     })
                     .catch(({ response }) => {

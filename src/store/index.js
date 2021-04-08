@@ -60,7 +60,7 @@ export default new Vuex.Store({
             obj.v.$db.set('subscriptions', state.subscriptions).write();
         },
         addHistory(state, obj) {
-            state.history.push(obj.h);
+            state.history.unshift(obj.h);
             obj.v.$db.set('history', state.history).write();
         },
         removeHistory(state, obj) {

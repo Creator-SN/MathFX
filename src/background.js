@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, BrowserWindow,globalShortcut } from 'electron'
+import { app, protocol, ipcMain, Tray, Menu, BrowserWindow, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -11,11 +11,12 @@ protocol.registerSchemesAsPrivileged([
     { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+let win = null;
 async function createWindow() {
     // Create the browser window.
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         frame: false,
-        width: isDevelopment?800:480,
+        width: isDevelopment ? 800 : 480,
         height: 600,
         webPreferences: {
             // Use pluginOptions.nodeIntegration, leave this alone
@@ -38,7 +39,12 @@ async function createWindow() {
     });
 
     ipcMain.on("close", () => {
-        win.close();
+        win.hide();
+        // win.close();
+    });
+
+    ipcMain.on("show", () => {
+        win.show();
     });
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -84,7 +90,29 @@ app.on('ready', async () => {
     globalShortcut.register('CommandOrControl+Shift+L', () => {
         let focusWin = BrowserWindow.getFocusedWindow()
         focusWin && focusWin.toggleDevTools()
-      })
+    })
+})
+
+let tray = null
+app.whenReady().then(() => {
+    tray = new Tray('./src/assets/logo.png');
+    tray.on("click", () => {
+        win.show();
+    });
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Main', click: () => {
+                win.show();
+            }
+        },
+        {
+            label: 'Quit', click: () => {
+                app.quit();
+            }
+        }
+    ])
+    tray.setToolTip('MathX')
+    tray.setContextMenu(contextMenu)
 })
 
 // Exit cleanly on request from parent process in development mode.

@@ -10603,10 +10603,10 @@ version-range@^1.0.0:
   dependencies:
     version-compare "^1.0.0"
 
-vfluentdesign@^0.0.90:
-  version "0.0.90"
-  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.0.90.tgz#f1cf77ef60688833f24f52e7423c3d3931188290"
-  integrity sha512-G3ANQYDYgOGi0TZEE3NJY+LGiC90r+7+oJmUQtotdsLdqrlenJytaMHLiKvEasQJvfwpL0fCScGnGm81vEwwIQ==
+vfluentdesign@^0.0.91:
+  version "0.0.91"
+  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.0.91.tgz#5850facf1748d928a622f379096a29e6113ee72b"
+  integrity sha512-EXgcITxy5Ubj/JaLYAi6HOCsxk5yyK3C5w7Km5Xws8yDTJ04nyesHIbJdvwpl1HU4Cfsli7NKXzuTE8U+eGs7Q==
   dependencies:
     core-js "^3.4.3"
     fluent-reveal-effect "^1.1.1"

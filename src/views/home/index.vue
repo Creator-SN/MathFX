@@ -1,7 +1,7 @@
 <template>
     <div class="main-container">
         <div class="hud-container">
-            <clipper :theme="theme" ref="clipper"></clipper>
+            <displayer :theme="theme" :value="history[history.length - 1]" ref="displayer"></displayer>
         </div>
         <div class="control-container">
             <div class="left-bar"></div>
@@ -10,40 +10,57 @@
                     theme="dark"
                     foreground="rgba(242, 242, 242, 0.8)"
                     background="rgba(27, 96, 147, 0.3)"
-                    fontSize="28"
+                    fontSize="20"
                     borderRadius="50"
+                    :disabled="one_times_lock"
                     style="width: 50px; height: 50px"
                     @click="op"
                 >
-                    <i class="ms-Icon ms-Icon--RectangularClipping"></i>
+                    <i v-show="!one_times_lock" class="ms-Icon ms-Icon--RectangularClipping"></i>
+                    <div v-show="one_times_lock" style="width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
+                        <fv-progress-ring color="whitesmoke"></fv-progress-ring>
+                    </div>
                 </fv-button>
             </div>
             <div class="right-bar"></div>
         </div>
+        <div v-show="false" ref="placeholder">{{cur_latex}}</div>
     </div>
 </template>
 
 <script>
-import clipper from "@/components/home/clipper.vue";
+import { execFile } from "child_process";
+import path from "path";
+import { clipboard } from "electron";
+import displayer from "@/components/home/displayer.vue";
 import { mapState } from "vuex";
 
 export default {
     components: {
-        clipper,
+        displayer,
     },
-    props: {
+    computed: {
         ...mapState({
-            theme: (state) => state.theme,
+            mathjax: (state) => state.mathjax,
+            cur_sub: state => state.cur_sub,
+            history: state => state.history,
+            subscriptions: state => state.subscriptions,
+            theme: (state) => state.theme
         }),
+        s () {
+            return this.subscriptions[this.cur_sub];
+        }
     },
     data() {
         return {
+            cur_latex: "",
             one_times_lock: false
         };
     },
     methods: {
         op () {
-            this.$refs.clipper.get_mathpix();
+            let ops = [this.get_baidu, this.get_mathpix];
+            ops[this.cur_sub]();
         },
         async get_clip () {
             if (this.one_times_lock) {
@@ -81,6 +98,74 @@ export default {
                     }
                 });
             });
+        },
+        getFromData (key) {
+            return (this.s.data.find(item => item.key === key)).value;
+        },
+        async render_mathpix() {
+            return await new Promise(resolve => {
+                if (this.mathjax) {
+                    this.$nextTick(() => {
+                        this.mathjax.Hub.Queue(
+                            ["Typeset", this.mathjax.Hub, this.$refs.placeholder],
+                            () => {
+                                resolve(0);
+                            }
+                        );
+                    });
+                }
+                else
+                    resolve(-1);
+            });
+        },
+        async return_svg () {
+            let svg = this.$refs.placeholder.querySelectorAll("svg")[0];
+            if(!svg)
+                return;
+            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            let output = svg.outerHTML;
+            let image = new Image();
+            image.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(output)));
+            output = await new Promise(resolve => {
+                image.onload = () => {
+                    let canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    let context = canvas.getContext('2d');
+                    context.drawImage(image, 0, 0);
+                    let o = canvas.toDataURL('image/png');
+                    resolve(o);
+                }
+            })
+            return {
+                svg: image.src,
+                png: output
+            };
+        },
+        async return_mathml () {
+            return await new Promise(resolve => {
+                this.mathjax.Hub.Queue(() => {
+                    let jax = this.mathjax.Hub.getAllJax();
+                    for (let i = 0; i < jax.length; i++) {
+                        this.getMathML(jax[i], function (mml) {
+                            resolve(mml);
+                            return 0;
+                        });
+                    }
+                });
+            });
+        },
+        getMathML(jax,callback) {
+            let mml;
+            try {
+                mml = jax.root.toMathML("");
+            } catch(err) {
+                if (!err.restart) {throw err} // an actual error
+                return this.mathjax.Callback.After([this.getMathML,jax,callback],err.restart);
+            }
+            //
+            //  Pass the MathML to the user's callback
+            this.mathjax.Callback(callback)(mml);
         },
         async get_mathpix () {
             if (this.one_times_lock) {
@@ -123,15 +208,36 @@ export default {
                     },
                 }
             )
-            .then(({ data }) => {
-                this.latex = `$$${data.latex_styled}$$`;
-                this.fomulate = data;
-                this.render_mathpix();
+            .then(async ({ data }) => {
+                let latex_bare = `${data.latex_styled}`;
+                let latex_1 = `$${data.latex_styled}$`;
+                let latex_2 = `$$\n${data.latex_styled}\n$$`;
+                let latex_3 = `\\begin{equation}\n${data.latex_styled}\n\\end{equation}`;
+                this.cur_latex = `$$${data.latex_styled}$$`;
+                
+                await this.render_mathpix();
+                let mathml = await this.return_mathml();
+                let imgs = await this.return_svg();
+                let h = {
+                    guid: this.$SUtility.Guid(),
+                    latex_bare,
+                    latex_1,
+                    latex_2,
+                    latex_3,
+                    mathml,
+                    ...imgs,
+                    src: this.origin,
+                    date: this.$SDate.DateToString(new Date())
+                };
+                this.$store.commit("addHistory", {
+                    v: this,
+                    h
+                });
                 this.one_times_lock = false;
             })
             .catch(({ response }) => {
                 this.$barWarning(
-                    response.data.error,
+                    JSON.stringify(response),
                     {
                         status: "error",
                     }
@@ -149,12 +255,8 @@ export default {
             this.origin = await this.get_clip();
             this.one_times_lock = true;
             let access_token = await new Promise(resolve => {
-                this.axios.post('https://aip.baidubce.com/oauth/2.0/token', {
-                    grant_type: 'client_credentials',
-                    client_id: this.getFromData("api_key"),
-                    client_secret: this.getFromData("secret_key")
-                }).
-                then(data => {
+                this.axios.get(`https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${this.getFromData("api_key")}&client_secret=${this.getFromData("secret_key")}`).
+                then(({ data }) => {
                     resolve(data.access_token);
                 })
                 .catch(data => {
@@ -174,24 +276,58 @@ export default {
             .post(
                 `${this.getFromData("url")}?access_token=${access_token}`,
                 {
-                    src: this.origin
+                    image: this.origin
                 },
                 {
                     headers: {
                         "Content-Type":
                             "application/x-www-form-urlencoded",
                     },
+                    transformRequest: [
+                        data => {
+                            let ret = ''
+                            for (let it in data) {
+                                ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                            }
+                            ret = ret.substring(0, ret.lastIndexOf('&'));
+                            return ret
+                        }
+                    ]
                 }
             )
-            .then(({ data }) => {
-                this.latex = `$$${data.latex_styled}$$`;
-                this.fomulate = data;
-                this.render_mathpix();
+            .then(async ({ data }) => {
+                let results = data.words_result;
+                for(let r of results) {
+                    let latex_bare = `${r.words}`;
+                    let latex_1 = `$${r.words}$`;
+                    let latex_2 = `$$\n${r.words}\n$$`;
+                    let latex_3 = `\\begin{equation}\n${r.words}\n\\end{equation}`;
+                    this.cur_latex = `$$${r.words}$$`;
+                    
+                    await this.render_mathpix();
+                    let mathml = await this.return_mathml();
+                    let imgs = await this.return_svg();
+                    let h = {
+                        guid: this.$SUtility.Guid(),
+                        latex_bare,
+                        latex_1,
+                        latex_2,
+                        latex_3,
+                        mathml,
+                        ...imgs,
+                        src: this.origin,
+                        date: this.$SDate.DateToString(new Date())
+                    };
+                    this.$store.commit("addHistory", {
+                        v: this,
+                        h
+                    });
+                }
                 this.one_times_lock = false;
             })
             .catch(({ response }) => {
                 this.$barWarning(
-                    response.data.error,
+                    JSON.stringify(response),
                     {
                         status: "error",
                     }
@@ -213,12 +349,18 @@ export default {
     overflow: hidden;
 
     .hud-container {
+        position: relative;
+        width: 100%;
+        height: auto;
         flex: 1;
+        display: flex;
+        overflow: hidden;
     }
 
     .control-container {
         position: relative;
         width: 100%;
+        min-height: 120px;
         height: 120px;
         background: rgba(27, 96, 147, 0.8);
 

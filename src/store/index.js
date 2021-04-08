@@ -7,6 +7,7 @@ export default new Vuex.Store({
     state: {
         mathjax: undefined,
         subscriptions: [],
+        history: [],
         cur_sub: 0,
         theme: 'light'
     },
@@ -25,6 +26,18 @@ export default new Vuex.Store({
         reviseSubscriptions(state, obj) {
             state.subscriptions = obj.subscriptions;
             obj.v.$db.set('subscriptions', state.subscriptions).write();
+        },
+        addHistory(state, obj) {
+            state.history.push(obj.h);
+            obj.v.$db.set('history', state.history).write();
+        },
+        removeHistory(state, obj) {
+            state.history.splice(state.history.indexOf(state.history.find(it => it.guid === obj.guid)), 1);
+            obj.v.$db.set('history', state.history).write();
+        },
+        reviseHistory(state, obj) {
+            state.history = obj.history;
+            obj.v.$db.set('history', state.history).write();
         },
         toggleTheme(state, v) {
             if (state.theme == 'light') {

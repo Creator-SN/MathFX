@@ -33,6 +33,7 @@ export default {
     },
     computed:{
         ...mapState({
+            mathjax: state => state.mathjax,
             theme: (state) => state.theme
         }),
         navigationViewBackground () {
@@ -43,18 +44,23 @@ export default {
     },
     mounted () {
         this.syncDB();
+        this.mathjaxInit();
     },
     methods: {
         ...mapMutations({
             toggleTheme: "toggleTheme",
             reviseTheme: "reviseTheme",
             reviseCurSub: "reviseCurSub",
+            reviseHistory: "reviseHistory",
             reviseSubscriptions: "reviseSubscriptions"
         }),
+        mathjaxInit() {
+            
+        },
         syncDB () {
             let subscriptions = this.$db.get('subscriptions').write();
             let cur_sub = this.$db.get('cur_sub').write();
-            let history = this.$db.get('subscriptions').write();
+            let history = this.$db.get('history').write();
             let theme = this.$db.get('theme').write();
             if(!subscriptions)
                 this.reviseSubscriptions({
@@ -94,6 +100,16 @@ export default {
                 this.reviseCurSub({
                     v: this,
                     cur_sub: cur_sub
+                });
+            if(!history)
+                this.reviseHistory({
+                    v: this,
+                    history: []
+                });
+            else
+                this.reviseHistory({
+                    v: this,
+                    history: history
                 });
             if(!theme)
                 this.reviseTheme({

@@ -6,6 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         mathjax: undefined,
+        mathjax_ready: false,
         subscriptions: [],
         history: [],
         cur_sub: 0,
@@ -15,6 +16,32 @@ export default new Vuex.Store({
     mutations: {
         readyMathJax(state, mathjax) {
             state.mathjax = mathjax
+            mathjax.Hub.Config({
+                extensions: ["tex2jax.js", "toMathML.js"],
+                jax: ["input/TeX", "output/SVG"],
+                tex2jax: {
+                    inlineMath: [
+                        ["$", "$"],
+                        ["\\(", "\\)"],
+                    ],
+                    displayMath: [
+                        ["$$", "$$"],
+                        ["\\[", "\\]"],
+                    ],
+                    processEscapes: true,
+                },
+                SVG: {
+                    useGlobalCache: false
+                }
+            });
+            // 判断扩展是否加载完毕
+            mathjax.Callback.Queue(
+                ["Require", mathjax.Ajax, "[MathJax]/extensions/tex2jax.js"],
+                ["Require", mathjax.Ajax, "[MathJax]/extensions/toMathML.js"],
+                [() => {
+                    state.mathjax_ready = true
+                }]
+            )
         },
         reviseTheme(state, obj) {
             state.theme = obj.theme;

@@ -11,7 +11,7 @@
                 <div v-for="(item, i) in itemOfName(s.name).data" :key="index + '.' + i" class="s-info-row" @click="$event.stopPropagation()">
                     <p class="st-1">{{item.name}}:</p>
                     <p v-show="!s.revise" class="st-2">{{item.value}}</p>
-                    <fv-text-box v-show="s.revise" v-model="item.value" :placeholder="`Input Your ${item.name}`" :theme="theme" :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': ''" borderRadius="3" :revealBorder="true" :isBoxShadow="true" style="margin-left: 15px;"></fv-text-box>
+                    <fv-text-box v-show="s.revise" v-model="item.value" :placeholder="`Input Your ${item.name}`" :theme="theme" :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': ''" borderRadius="3" :revealBorder="true" :isBoxShadow="true" style="margin-left: 15px;" type="password"></fv-text-box>
                 </div>
             </div>
             <div class="s-control-block" @click="$event.stopPropagation()">

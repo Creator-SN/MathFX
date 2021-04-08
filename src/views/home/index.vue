@@ -137,9 +137,10 @@ export default {
         async return_svg() {
             let result = await new Promise((resolve, reject) => {
                 this.$nextTick(() => {
+                    console.log(this.$refs.placeholder)
                     let svg = this.$refs.placeholder.querySelectorAll("svg")[0];
                     if (!svg) {
-                        reject({ response: "generate svg fail" });
+                        reject({ response: "SVG生成失败" });
                         return;
                     }
                     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -148,6 +149,7 @@ export default {
                     image.src =
                         "data:image/svg+xml;base64," +
                         window.btoa(unescape(encodeURIComponent(output)));
+
                     image.onload = () => {
                         let canvas = document.createElement("canvas");
                         canvas.width = image.width;
@@ -239,10 +241,11 @@ export default {
                         let latex_2 = `$$\n${data.latex_styled}\n$$`;
                         let latex_3 = `\\begin{equation}\n${data.latex_styled}\n\\end{equation}`;
                         this.cur_latex = `$$${data.latex_styled}$$`;
-
                         await this.render_mathpix();
                         let mathml = await this.return_mathml();
+                        console.log(mathml)
                         let imgs = await this.return_svg();
+                        console.log(imgs)
                         let h = {
                             guid: this.$SUtility.Guid(),
                             latex_bare,
@@ -254,10 +257,12 @@ export default {
                             src: this.origin,
                             date: this.$SDate.DateToString(new Date()),
                         };
+                        console.log("test2")
                         this.$store.commit("addHistory", {
                             v: this,
                             h,
                         });
+                        console.log("test")
                         this.one_times_lock = false;
                     })
                     .catch(({ response }) => {

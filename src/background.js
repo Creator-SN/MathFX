@@ -97,6 +97,15 @@ app.on('ready', async () => {
     globalShortcut.register(process.platform === 'darwin' ? 'Alt+Cmd+M' : 'Alt+Shift+M', () => {
         win.show();
     })
+
+    globalShortcut.register(process.platform === 'darwin' ? 'Alt+Cmd+X' : 'Alt+Shift+X', () => {
+        win.webContents.send("scan", {
+            source: 'tray'
+        });
+        setTimeout(() => {
+            win.show();
+        }, 1000);
+    })
 })
 
 let tray = null
@@ -106,6 +115,17 @@ app.whenReady().then(() => {
         win.show();
     });
     const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Scan',
+            click: () => {
+                win.webContents.send("scan", {
+                    source: 'tray'
+                });
+                setTimeout(() => {
+                    win.show();
+                }, 1000);
+            }
+        },
         {
             label: 'Main',
             click: () => {

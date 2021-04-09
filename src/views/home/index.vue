@@ -39,6 +39,7 @@
                     fontSize="20"
                     borderRadius="50"
                     :disabled="one_times_lock || !mathjax_ready"
+                    title="Scan New Formulate (Alt + Shift/Cmd + X)"
                     style="width: 50px; height: 50px"
                     @click="op"
                 >
@@ -119,9 +120,15 @@ export default {
             }
         };
     },
+    watch: {
+        handlerScan (to, from) {
+            this.handler_event(to, from);
+        }
+    },
     computed: {
         ...mapState({
             mathjax: (state) => state.mathjax,
+            handlerScan: state => state.handlerScan,
             cur_sub: (state) => state.cur_sub,
             cur_h: (state) => state.cur_h,
             history: (state) => state.history,
@@ -136,6 +143,9 @@ export default {
             return this.history.find(item => item.guid === this.cur_h);  
         }
     },
+    mounted () {
+        this.handler_event(this.handlerScan, false);
+    },
     methods: {
         op() {
             if (this.mathjax_ready) {
@@ -144,6 +154,12 @@ export default {
                 this.$barWarning("公式渲染程序还未加载", {
                     status: "warning",
                 });
+            }
+        },
+        handler_event (to, from) {
+            if(to === true) {
+                this.op();
+                this.$store.commit('triggerHandlerScan', false);
             }
         },
         move_prev () {

@@ -15,6 +15,7 @@
 <script>
 import titleBar from "@/components/general/titleBar.vue";
 import { mapMutations, mapState } from "vuex";
+const { ipcRenderer: ipc } = require('electron');
 
 export default {
     name: "App",
@@ -44,7 +45,7 @@ export default {
     },
     mounted () {
         this.syncDB();
-        this.mathjaxInit();
+        this.ipcEventInit();
     },
     methods: {
         ...mapMutations({
@@ -53,10 +54,14 @@ export default {
             reviseCurH: "reviseCurH",
             reviseCurSub: "reviseCurSub",
             reviseHistory: "reviseHistory",
-            reviseSubscriptions: "reviseSubscriptions"
+            reviseSubscriptions: "reviseSubscriptions",
+            triggerHandlerScan: "triggerHandlerScan"
         }),
-        mathjaxInit() {
-            
+        ipcEventInit() {
+            ipc.on("scan", (event, args) => {
+                this.$Go('/');
+                this.triggerHandlerScan(true);
+            });
         },
         syncDB () {
             let subscriptions = this.$db.get('subscriptions').write();

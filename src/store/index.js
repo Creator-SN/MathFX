@@ -7,6 +7,7 @@ export default new Vuex.Store({
     state: {
         mathjax: undefined,
         mathjax_ready: false,
+        handlerScan: false,
         subscriptions: [],
         history: [],
         cur_sub: 0,
@@ -42,6 +43,9 @@ export default new Vuex.Store({
                     state.mathjax_ready = true
                 }]
             )
+        },
+        triggerHandlerScan(state, msg) {
+            state.handlerScan = msg;
         },
         reviseTheme(state, obj) {
             state.theme = obj.theme;

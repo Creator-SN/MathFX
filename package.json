@@ -1,6 +1,6 @@
 {
-  "name": "mathpix-electron",
-  "version": "0.1.0",
+  "name": "mathx",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

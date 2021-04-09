@@ -3,6 +3,7 @@
 import { app, protocol, ipcMain, Tray, Menu, BrowserWindow, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import path from 'path'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 
@@ -110,7 +111,7 @@ app.on('ready', async () => {
 
 let tray = null
 app.whenReady().then(() => {
-    tray = new Tray('./src/assets/logo.png');
+    tray = new Tray(path.join(__static,'./logo.png') );
     tray.on("click", () => {
         win.show();
     });

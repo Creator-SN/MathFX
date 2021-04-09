@@ -78,6 +78,7 @@
             >
                 <fv-text-box
                     :theme="theme"
+                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': ''"
                     borderRadius="3"
                     :borderWidth="2"
                     :revealBorder="true"
@@ -88,6 +89,7 @@
                 ></fv-text-box>
                 <fv-button
                     :theme="theme"
+                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': ''"
                     borderRadius="3"
                     :borderWidth="2"
                     :isBoxShadow="true"
@@ -204,7 +206,18 @@ export default {
 
     &.dark {
         color: white;
-        background: black;
+        background: rgba(36, 36, 45, 1);
+
+        .img-block
+        {
+            background: rgba(0, 0, 0, 1);
+            box-shadow: 0px 3px 8px rgba(120, 120, 120, 0.1);
+
+            img
+            {
+                filter: invert(1);
+            }
+        }
     }
 
     .img-block {

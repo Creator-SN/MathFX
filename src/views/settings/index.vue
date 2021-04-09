@@ -49,6 +49,7 @@ export default {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: all 0.3s;
 
     &.dark
     {

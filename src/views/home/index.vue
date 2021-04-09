@@ -2,14 +2,36 @@
     <div class="main-container">
         <div class="hud-container">
             <displayer
+                v-show="h"
                 :theme="theme"
-                :value="history[cur_h]"
+                :value="h"
                 ref="displayer"
             ></displayer>
+            <div v-show="!h" class="empty-bg">
+                <i class="ms-Icon ms-Icon--RectangularClipping"></i>
+                <p>Start For the First Scan.</p>
+            </div>
         </div>
         <div class="control-container">
-            <div class="left-bar"></div>
+            <div class="left-bar">
+                <p class="ms-Icon ms-Icon--LightningBolt" style="font-size: 12px;"></p>
+                <p>{{h === undefined ? 0 : history.indexOf(h) + 1}}</p>
+                <p>/</p>
+                <p>{{history.length}}</p>
+            </div>
             <div class="mid-bar">
+                <fv-button
+                    theme="dark"
+                    foreground="rgba(242, 242, 242, 0.8)"
+                    background="rgba(27, 96, 147, 0.3)"
+                    borderRadius="50"
+                    style="width: 30px; height: 30px; margin: 0px 8px;"
+                    @click="move_prev"
+                >
+                    <i
+                        class="ms-Icon ms-Icon--ChevronLeftMed"
+                    ></i>
+                </fv-button>
                 <fv-button
                     theme="dark"
                     foreground="rgba(242, 242, 242, 0.8)"
@@ -37,9 +59,39 @@
                         <fv-progress-ring color="whitesmoke"></fv-progress-ring>
                     </div>
                 </fv-button>
+                <fv-button
+                    theme="dark"
+                    foreground="rgba(242, 242, 242, 0.8)"
+                    background="rgba(27, 96, 147, 0.3)"
+                    borderRadius="50"
+                    style="width: 30px; height: 30px; margin: 0px 8px;"
+                    @click="move_next"
+                >
+                    <i
+                        class="ms-Icon ms-Icon--ChevronRightMed"
+                    ></i>
+                </fv-button>
             </div>
-            <div class="right-bar"></div>
+            <div class="right-bar">
+                <fv-button
+                    theme="dark"
+                    foreground="rgba(242, 242, 242, 0.8)"
+                    background="rgba(27, 96, 147, 0.3)"
+                    borderRadius="50"
+                    style="width: 40px; height: 40px; margin: 0px 8px;"
+                    @click="show.panel = !show.panel"
+                >
+                    <i
+                        class="ms-Icon ms-Icon--FullHistory"
+                    ></i>
+                </fv-button>
+            </div>
         </div>
+        <fv-Panel v-model="show.panel" :title="'历史'" :width="350" :theme="theme" :isLightDismiss="true" :isAcrylic="true" >
+            <template v-slot:container>
+                <list :theme="theme" :cur_h="cur_h" :history="history" style="padding: 15px;"></list>
+            </template>
+        </fv-Panel>
         <div v-show="false" ref="placeholder">{{ cur_latex }}</div>
     </div>
 </template>
@@ -49,11 +101,23 @@ import { execFile } from "child_process";
 import path from "path";
 import { clipboard } from "electron";
 import displayer from "@/components/home/displayer.vue";
+import list from '@/components/history/list.vue';
 import { mapState } from "vuex";
 
 export default {
     components: {
         displayer,
+        list
+    },
+    data() {
+        return {
+            ops: [this.get_baidu, this.get_mathpix],
+            cur_latex: "",
+            one_times_lock: false,
+            show: {
+                panel: false
+            }
+        };
     },
     computed: {
         ...mapState({
@@ -65,16 +129,12 @@ export default {
             theme: (state) => state.theme,
             mathjax_ready: (state) => state.mathjax_ready,
         }),
-        s() {
+        s () {
             return this.subscriptions[this.cur_sub];
         },
-    },
-    data() {
-        return {
-            ops: [this.get_baidu, this.get_mathpix],
-            cur_latex: "",
-            one_times_lock: false,
-        };
+        h () {
+            return this.history.find(item => item.guid === this.cur_h);  
+        }
     },
     methods: {
         op() {
@@ -85,6 +145,42 @@ export default {
                     status: "warning",
                 });
             }
+        },
+        move_prev () {
+            let index = this.history.indexOf(this.history.find(item => item.guid === this.cur_h));
+            if(index < 0) {
+                if(this.history.length > 0)
+                    this.$store.commit("reviseCurH", {
+                        v: this,
+                        cur_h: this.history[0].guid
+                    })
+                return 0;
+            }
+            index--;
+            if(this.history[index])
+                this.$store.commit("reviseCurH", {
+                    v: this,
+                    cur_h: this.history[index].guid
+                });
+            return 0;
+        },
+        move_next () {
+            let index = this.history.indexOf(this.history.find(item => item.guid === this.cur_h));
+            if(index < 0) {
+                if(this.history.length > 0)
+                    this.$store.commit("reviseCurH", {
+                        v: this,
+                        cur_h: this.history[0].guid
+                    });
+                return 0;
+            }
+            index++;
+            if(this.history[index])
+                this.$store.commit("reviseCurH", {
+                    v: this,
+                    cur_h: this.history[index].guid
+                });
+            return 0;
         },
         async get_clip() {
             let app_root = path.join(__static, "../capture/");
@@ -259,6 +355,10 @@ export default {
                             v: this,
                             h,
                         });
+                        this.$store.commit("reviseCurH", {
+                            v: this,
+                            cur_h: h.guid
+                        });
                         this.one_times_lock = false;
                     })
                     .catch(({ response }) => {
@@ -358,6 +458,10 @@ export default {
                                 v: this,
                                 h,
                             });
+                            this.$store.commit("reviseCurH", {
+                                v: this,
+                                cur_h: h.guid
+                            });
                         }
                         this.one_times_lock = false;
                     })
@@ -384,6 +488,7 @@ export default {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: all 0.3s;
 
     .hud-container {
         position: relative;
@@ -392,6 +497,30 @@ export default {
         flex: 1;
         display: flex;
         overflow: hidden;
+
+        .empty-bg
+        {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            color: rgba(190, 190, 190, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            cursor: default;
+
+            i:first-child
+            {
+                font-size: 96px;
+            }
+
+            p
+            {
+                margin-top: 15px;
+            }
+        }
     }
 
     .control-container {
@@ -407,6 +536,26 @@ export default {
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
 
+        .left-bar
+        {
+            position: relative;
+            width: auto;
+            height: 100%;
+            padding: 0px 15px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            cursor: default;
+
+            p
+            {
+                margin: 0px 3px;
+                color: rgba(242, 242, 242, 0.8);
+            }
+        }
+
         .mid-bar {
             position: relative;
             width: 50%;
@@ -414,6 +563,20 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .right-bar
+        {
+            position: relative;
+            width: auto;
+            height: 100%;
+            padding: 0px 15px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            cursor: default;
         }
     }
 }

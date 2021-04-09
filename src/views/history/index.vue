@@ -1,9 +1,9 @@
 <template>
-<div class="history-container">
+<div class="history-container" :class="[{dark: theme === 'dark'}]">
     <div class="s-row">
         <p class="s-title">历史</p>
     </div>
-    <list :cur_h="cur_h" :history="history"></list>
+    <list :theme="theme" :cur_h="cur_h" :history="history" @item-click="switchH"></list>
 </div>
 </template>
 
@@ -23,8 +23,14 @@ export default {
     computed: {
         ...mapState({
             cur_h: state => state.cur_h,
-            history: state => state.history
+            history: state => state.history,
+            theme: (state) => state.theme
         })
+    },
+    methods: {
+        switchH () {
+            this.$Go('/');
+        }
     }
 }
 </script>
@@ -39,6 +45,17 @@ export default {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: all 0.3s;
+
+    &.dark
+    {
+        background: rgba(36, 36, 36, 1);
+
+        .s-title
+        {
+            color: whitesmoke;
+        }
+    }
 
     .s-row
     {

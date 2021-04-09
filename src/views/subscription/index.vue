@@ -118,6 +118,7 @@ export default {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: all 0.3s;
 
     &.dark
     {
@@ -132,7 +133,7 @@ export default {
         {
             .s-block
             {
-                background: rgba(56, 56, 56, 1);
+                background: rgba(56, 56, 63, 1);
 
                 .s-api-title
                 {

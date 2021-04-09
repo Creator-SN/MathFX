@@ -1,6 +1,6 @@
 <template>
-<div class="scroll-view">
-    <div class="s-history-block" :class="[{ choosen: cur_h === index }]" v-for="(h, index) in history" :key="index" @click="reviseH(index)">
+<div class="scroll-view" :class="[{dark: theme === 'dark'}]">
+    <div class="s-history-block" :class="[{ choosen: cur_h === h.guid }]" v-for="(h, index) in history" :key="index" @click="reviseH(h)">
         <fv-img class="bg-top" :src="h.src"></fv-img>
         <fv-img class="bg-bottom" :src="h.svg"></fv-img>
         <div class="s-control-block">
@@ -9,8 +9,16 @@
                 borderRadius="50"
                 style="width: 40px; height: 40px;"
                 title="快速复制"
-                @click="copy_text($event, h.latex_2)">
+                @click="copy_text($event, h.latex_1)">
                 <i class="ms-Icon ms-Icon--Copy"></i>
+            </fv-button>
+            <fv-button :theme="theme"
+                fontSize="16"
+                borderRadius="50"
+                style="width: 40px; height: 40px;"
+                title="Copy Microsoft© Word"
+                @click="copy_text($event, h.mathml)">
+                <i class="ms-Icon ms-Icon--WordLogo"></i>
             </fv-button>
             <fv-button :theme="'dark'"
                 fontSize="16"
@@ -58,11 +66,12 @@ export default {
                 guid: guid
             });
         },
-        reviseH (index) {
+        reviseH (h) {
             this.reviseCurH({
                 v: this,
-                cur_h: index
+                cur_h: h.guid
             });
+            this.$emit("item-click", h);
         }
     }
 }
@@ -81,6 +90,25 @@ export default {
     row-gap: 15px;
     display: grid;
     overflow: auto;
+
+    &.dark
+    {
+        .s-history-block
+        {
+            background: rgba(56, 56, 63, 1);
+            color: whitesmoke;
+
+            .s-control-block
+            {
+                background: rgba(56, 56, 63, 0.8);
+            }
+
+            img
+            {
+                filter: invert(1);
+            }
+        }
+    }
 
     .s-history-block
     {

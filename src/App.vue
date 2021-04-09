@@ -1,6 +1,6 @@
 <template>
-    <div id="app">
-        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :settingTitle="'设置'" @item-click="$Go($event.url)" @setting-click="$Go(`/settings`)"></fv-navigation-view>
+    <div id="app" :class="{dark: theme == 'dark'}">
+        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathX'" :settingTitle="'设置'" @item-click="$Go($event.url)" @back="$Back()" @setting-click="$Go(`/settings`)"></fv-navigation-view>
         <div class="addition-container">
             <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
             <div class="global-container">
@@ -149,6 +149,12 @@ export default {
     padding: 0px;
     display: flex;
     overflow: hidden;
+    transition: all 0.3s;
+
+    &.dark
+    {
+        background: rgba(36, 36, 36, 1);
+    }
 
     .navigation-view
     {

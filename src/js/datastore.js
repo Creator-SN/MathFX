@@ -57,12 +57,22 @@ function init_db() {
                         { name: 'App ID', key: 'app_id', value: '' },
                         { name: 'Key', key: 'app_key', value: '' }
                     ]
+                },
+                {
+                    name: "xunfei",
+                    title: "Xunfei API",
+                    data: [
+                        { name: "Url", key: "url", value: '' },
+                        { name: "App ID", key: "app_id", value: '' },
+                        { name: "App Key", key: "app_key", value: '' },
+                        { name: "App Secret", key: "app_secret", value: "" }
+                    ]
                 }
             ],
             cur_sub: 0,
             cur_h: 0,
             history: [
-                
+
             ],
             theme: "light"
         })

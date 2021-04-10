@@ -164,6 +164,12 @@ export default {
     methods: {
         op() {
             if (this.mathjax_ready) {
+                if(!this.isSubscriptionReady()) {
+                    this.$barWarning(`订阅${this.s.title}信息未就绪`, {
+                        status: "warning",
+                    });
+                    return 0;
+                }
                 if(this.ops[this.cur_sub] !== undefined)
                     this.ops[this.cur_sub]();
                 else
@@ -249,6 +255,13 @@ export default {
         },
         getFromData(key) {
             return this.s.data.find((item) => item.key === key).value;
+        },
+        isSubscriptionReady () {
+            for(let key in this.s.data) {
+                if(this.s.data[key].value === '' || this.s.data[key].value === undefined)
+                    return false;
+            }
+            return true;
         },
         async render_mathpix() {
             return await new Promise((resolve, reject) => {

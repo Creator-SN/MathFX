@@ -1,6 +1,6 @@
 <template>
-<div class="scroll-view" :class="[{dark: theme === 'dark'}]">
-    <div class="s-history-block" :class="[{ choosen: cur_h === h.guid }]" v-for="(h, index) in history" :key="index" @click="reviseH(h)">
+<transition-group name="h-list" tag="div" class="scroll-view" :class="[{dark: theme === 'dark'}]">
+    <div class="s-history-block" :class="[{ choosen: cur_h === h.guid }]" v-for="(h, index) in history" :key="`s-history-block: ${index}`" @click="reviseH(h)">
         <fv-img class="bg-top" :src="h.src"></fv-img>
         <fv-img class="bg-bottom" :src="h.svg"></fv-img>
         <div class="s-control-block">
@@ -31,7 +31,7 @@
             </fv-button>
         </div>
     </div>
-</div>
+</transition-group>
 </template>
 
 <script>
@@ -90,6 +90,7 @@ export default {
     row-gap: 15px;
     display: grid;
     overflow: auto;
+    transition: all 0.2s;
 
     &.dark
     {
@@ -173,6 +174,44 @@ export default {
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
+    }
+
+    .h-list-move
+    {
+        transition: all 0.2s;
+        -webkit-transition: all 0.2s;
+    }
+
+    .h-list-enter
+    {
+        opacity: 0;
+        transform: translateY(-75px);
+    }
+    .h-list-enter-to
+    {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    .h-list-enter-active
+    {
+        transition: all 0.2s;
+        -webkit-transition: all 0.2s;
+    }
+    
+    .h-list-leave
+    {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+    .h-list-leave-to
+    {
+        opacity: 0;
+        transform: translateY(75px);
+    }
+    .h-list-leave-active
+    {
+        transition: all 0.2s;
+        -webkit-transition: all 0.2s;
     }
 }
 </style>

@@ -14,6 +14,7 @@
 
 <script>
 import titleBar from "@/components/general/titleBar.vue";
+import dataSample from '@/js/data_sample.js';
 import { mapMutations, mapState } from "vuex";
 const { ipcRenderer: ipc } = require('electron');
 
@@ -27,7 +28,7 @@ export default {
             navigationValue: {},
             navigationOptions: [
                 { name: "识别", icon: "GenericScan", url: "/" },
-                { name: "API", icon: "Link", url: "/subscription" },
+                { name: "订阅", icon: "Link", url: "/subscription" },
                 { name: "历史", icon: "History", url: "/history" }
             ]
         }
@@ -80,36 +81,7 @@ export default {
             if(!subscriptions)
                 this.reviseSubscriptions({
                     v: this,
-                    subscriptions: [
-                        {
-                            name: 'mathpix',
-                            title: 'MathPix API',
-                            data: [
-                                { name: 'Url', key: 'url', value: '' },
-                                { name: 'App ID', key: 'app_id', value: '' },
-                                { name: 'Key', key: 'app_key', value: '' }
-                            ]
-                        },
-                        {
-                            name: "xunfei",
-                            title: "Xunfei API",
-                            data: [
-                                { name: "Url", key: "url", value: '' },
-                                { name: "App ID", key: "app_id", value: '' },
-                                { name: "App Key", key: "app_key", value: '' },
-                                { name: "App Secret", key: "app_secret", value: "" }
-                            ]
-                        },
-                        {
-                            name: 'baidu',
-                            title: 'Baidu API(Not Recommend)',
-                            data: [
-                                { name: 'Url', key: 'url', value: '' },
-                                { name: 'API Key', key: 'api_key', value: '' },
-                                { name: 'Secret Key', key: 'secret_key', value: '' }
-                            ]
-                        }
-                    ]
+                    subscriptions: dataSample.subscriptions
                 });
             else
                 this.reviseSubscriptions({
@@ -119,7 +91,7 @@ export default {
             if(!cur_sub)
                 this.reviseCurSub({
                     v: this,
-                    cur_sub: 0
+                    cur_sub: dataSample.cur_sub
                 });
             else
                 this.reviseCurSub({
@@ -129,7 +101,7 @@ export default {
             if(!cur_h)
                 this.reviseCurH({
                     v: this,
-                    cur_h: 0
+                    cur_h: dataSample.cur_h
                 });
             else
                 this.reviseCurH({
@@ -139,7 +111,7 @@ export default {
             if(!history)
                 this.reviseHistory({
                     v: this,
-                    history: []
+                    history: dataSample.history
                 });
             else
                 this.reviseHistory({
@@ -149,7 +121,7 @@ export default {
             if(!theme)
                 this.reviseTheme({
                     v: this,
-                    theme: "light"
+                    theme: dataSample.theme
                 });
             else
                 this.reviseTheme({

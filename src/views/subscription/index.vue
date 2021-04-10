@@ -248,6 +248,7 @@ export default {
             }
 
             .s-api-title {
+                margin: 8px 0px;
                 font-size: 18px;
                 font-weight: bold;
                 color: rgba(50, 49, 48, 1);
@@ -257,11 +258,13 @@ export default {
                 margin: 5px 0px;
                 display: flex;
                 align-items: center;
+                transition: all 0.3s;
 
                 .st-1 {
                     min-width: 50px;
                     font-size: 12px;
                     color: rgba(10, 38, 59, 1);
+                    transition: all 0.3s;
                 }
 
                 .st-2 {
@@ -274,6 +277,7 @@ export default {
                     border-radius: 3px;
                     display: flex;
                     align-items: center;
+                    transition: all 0.3s;
                 }
             }
 

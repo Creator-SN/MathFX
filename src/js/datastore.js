@@ -1,4 +1,5 @@
 import Datastore from 'lowdb'
+import dataSample from './data_sample'
 import FileSync from 'lowdb/adapters/FileSync'
 import path from 'path'
 import fs from 'fs-extra'
@@ -37,45 +38,7 @@ function init_db_file() {
  */
 function init_db() {
     if (!db.has('init_status').value()) { // 先判断该值存不存在
-        db.defaults({
-            init_status: true,
-            subscriptions: [
-                {
-                    name: 'mathpix',
-                    title: 'MathPix API',
-                    data: [
-                        { name: 'Url', key: 'url', value: '' },
-                        { name: 'App ID', key: 'app_id', value: '' },
-                        { name: 'Key', key: 'app_key', value: '' }
-                    ]
-                },
-                {
-                    name: "xunfei",
-                    title: "Xunfei API",
-                    data: [
-                        { name: "Url", key: "url", value: '' },
-                        { name: "App ID", key: "app_id", value: '' },
-                        { name: "App Key", key: "app_key", value: '' },
-                        { name: "App Secret", key: "app_secret", value: "" }
-                    ]
-                },
-                {
-                    name: 'baidu',
-                    title: 'Baidu API(Not Recommend)',
-                    data: [
-                        { name: 'Url', key: 'url', value: '' },
-                        { name: 'API Key', key: 'api_key', value: '' },
-                        { name: 'Secret Key', key: 'secret_key', value: '' }
-                    ]
-                }
-            ],
-            cur_sub: 0,
-            cur_h: 0,
-            history: [
-
-            ],
-            theme: "light"
-        })
+        db.defaults(dataSample)
             .write()
     }
 }

@@ -1,6 +1,6 @@
 <template>
     <div id="app" :class="{dark: theme == 'dark'}">
-        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathX'" :settingTitle="'设置'" @item-click="$Go($event.url)" @back="$Back()" @setting-click="$Go(`/settings`)"></fv-navigation-view>
+        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathX'" :settingTitle="'设置'" ref="nav" @item-click="Go($event.url)" @back="$Back()" @setting-click="Go(`/settings`)"></fv-navigation-view>
         <div class="addition-container">
             <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
             <div class="global-container">
@@ -30,6 +30,14 @@ export default {
                 { name: "API", icon: "Link", url: "/subscription" },
                 { name: "历史", icon: "History", url: "/history" }
             ]
+        }
+    },
+    watch: {
+        $route (to, from) {
+            let val = this.navigationOptions.find(item => item.url === to.path);
+            if(!val)
+                val = { name: '>setting', type: 'setting' };
+            this.navigationValue = val;
         }
     },
     computed:{
@@ -138,6 +146,11 @@ export default {
                     v: this,
                     theme: theme
                 });
+        },
+        Go (path) {
+            if(this.$route.path === path)
+                return 0;
+            this.$Go(path);
         }
     }
 };

@@ -6,10 +6,10 @@
         <div class="scroll-view">
             <div
                 class="s-block"
-                :class="[{ choosen: cur_sub === index }]"
+                :class="[{ choosen: cur_sub === s.name }]"
                 v-for="(s, index) in s_list"
                 :key="index"
-                @click="curChoosen(index)"
+                @click="curChoosen(s)"
             >
                 <div class="s-1">
                     <img class="s-logo" :src="s.url" alt="" />
@@ -75,6 +75,7 @@
 
 <script>
 import { mapState } from "vuex";
+import apiImg from "@/assets/subscription/api.svg";
 import baiduImg from "@/assets/subscription/baidu.svg";
 import mathpixImg from "@/assets/subscription/mathpix.svg";
 
@@ -82,9 +83,9 @@ export default {
     data() {
         return {
             s_list: [
-                { name: "baidu", url: baiduImg, revise: false },
                 { name: "mathpix", url: mathpixImg, revise: false },
-                { name: "xunfei", url: mathpixImg, revise: false },
+                { name: "xunfei", url: apiImg, revise: false },
+                { name: "baidu", url: baiduImg, revise: false }
             ],
         };
     },
@@ -136,10 +137,10 @@ export default {
                 cancel: () => {},
             });
         },
-        curChoosen(index) {
+        curChoosen(s) {
             this.$store.commit("reviseCurSub", {
                 v: this,
-                cur_sub: index,
+                cur_sub: s.name,
             });
         },
     },
@@ -178,6 +179,7 @@ export default {
 
                     .st-2 {
                         color: whitesmoke;
+                        background: rgba(90, 90, 90, 1);
                     }
                 }
 
@@ -263,7 +265,15 @@ export default {
                 }
 
                 .st-2 {
+                    height: 20px;
+                    margin-left: 15px;
+                    padding: 0px 8px;
+                    background: rgba(240, 240, 240, 1);
                     font-size: 12px;
+                    color: rgba(50, 49, 48, 1);
+                    border-radius: 3px;
+                    display: flex;
+                    align-items: center;
                 }
             }
 

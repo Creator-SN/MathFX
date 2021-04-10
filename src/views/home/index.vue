@@ -123,7 +123,11 @@ export default {
     },
     data() {
         return {
-            ops: [this.get_baidu, this.get_mathpix, this.get_xunfei],
+            ops: {
+                'mathpix': this.get_mathpix,
+                'xunfei': this.get_xunfei,
+                'baidu': this.get_baidu
+            },
             cur_latex: "",
             one_times_lock: false,
             show: {
@@ -148,7 +152,7 @@ export default {
             mathjax_ready: (state) => state.mathjax_ready,
         }),
         s() {
-            return this.subscriptions[this.cur_sub];
+            return this.subscriptions.find(item => item.name === this.cur_sub);
         },
         h() {
             return this.history.find((item) => item.guid === this.cur_h);
@@ -160,7 +164,12 @@ export default {
     methods: {
         op() {
             if (this.mathjax_ready) {
-                this.ops[this.cur_sub]();
+                if(this.ops[this.cur_sub] !== undefined)
+                    this.ops[this.cur_sub]();
+                else
+                    this.$barWarning("未选择任何订阅", {
+                        status: "warning",
+                    });
             } else {
                 this.$barWarning("公式渲染程序还未加载", {
                     status: "warning",

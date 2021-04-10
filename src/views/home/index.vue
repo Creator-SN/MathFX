@@ -124,9 +124,9 @@ export default {
     data() {
         return {
             ops: {
-                'mathpix': this.get_mathpix,
-                'xunfei': this.get_xunfei,
-                'baidu': this.get_baidu
+                mathpix: this.get_mathpix,
+                xunfei: this.get_xunfei,
+                baidu: this.get_baidu,
             },
             cur_latex: "",
             one_times_lock: false,
@@ -152,7 +152,9 @@ export default {
             mathjax_ready: (state) => state.mathjax_ready,
         }),
         s() {
-            return this.subscriptions.find(item => item.name === this.cur_sub);
+            return this.subscriptions.find(
+                (item) => item.name === this.cur_sub
+            );
         },
         h() {
             return this.history.find((item) => item.guid === this.cur_h);
@@ -164,7 +166,7 @@ export default {
     methods: {
         op() {
             if (this.mathjax_ready) {
-                if(this.ops[this.cur_sub] !== undefined)
+                if (this.ops[this.cur_sub] !== undefined)
                     this.ops[this.cur_sub]();
                 else
                     this.$barWarning("未选择任何订阅", {
@@ -580,35 +582,38 @@ export default {
                     try {
                         if (body.code == 0) {
                             let results = body.data.region;
+                            let content = "";
                             for (let r of results) {
-                                let latex_bare = `${r.recog.content}`;
-                                let latex_1 = `$${r.recog.content}$`;
-                                let latex_2 = `$$\n${r.recog.content}\n$$`;
-                                let latex_3 = `\\begin{equation}\n${r.recog.content}\n\\end{equation}`;
-                                this.cur_latex = `$$${r.recog.content}$$`;
-                                await this.render_mathpix();
-                                let mathml = await this.return_mathml();
-                                let imgs = await this.return_svg();
-                                let h = {
-                                    guid: this.$SUtility.Guid(),
-                                    latex_bare,
-                                    latex_1,
-                                    latex_2,
-                                    latex_3,
-                                    mathml,
-                                    ...imgs,
-                                    src: this.origin,
-                                    date: this.$SDate.DateToString(new Date()),
-                                };
-                                this.$store.commit("addHistory", {
-                                    v: this,
-                                    h,
-                                });
-                                this.$store.commit("reviseCurH", {
-                                    v: this,
-                                    cur_h: h.guid,
-                                });
+                                content += r.recog.content;
                             }
+
+                            let latex_bare = `${content}`;
+                            let latex_1 = `$${content}$`;
+                            let latex_2 = `$$\n${content}\n$$`;
+                            let latex_3 = `\\begin{equation}\n${content}\n\\end{equation}`;
+                            this.cur_latex = `$$${content}$$`;
+                            await this.render_mathpix();
+                            let mathml = await this.return_mathml();
+                            let imgs = await this.return_svg();
+                            let h = {
+                                guid: this.$SUtility.Guid(),
+                                latex_bare,
+                                latex_1,
+                                latex_2,
+                                latex_3,
+                                mathml,
+                                ...imgs,
+                                src: this.origin,
+                                date: this.$SDate.DateToString(new Date()),
+                            };
+                            this.$store.commit("addHistory", {
+                                v: this,
+                                h,
+                            });
+                            this.$store.commit("reviseCurH", {
+                                v: this,
+                                cur_h: h.guid,
+                            });
                         }
                     } catch (e) {
                         console.log(e);

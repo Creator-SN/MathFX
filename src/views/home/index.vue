@@ -14,10 +14,13 @@
         </div>
         <div class="control-container">
             <div class="left-bar">
-                <p class="ms-Icon ms-Icon--LightningBolt" style="font-size: 12px;"></p>
-                <p>{{h === undefined ? 0 : history.indexOf(h) + 1}}</p>
+                <p
+                    class="ms-Icon ms-Icon--LightningBolt"
+                    style="font-size: 12px"
+                ></p>
+                <p>{{ h === undefined ? 0 : history.indexOf(h) + 1 }}</p>
                 <p>/</p>
-                <p>{{history.length}}</p>
+                <p>{{ history.length }}</p>
             </div>
             <div class="mid-bar">
                 <fv-button
@@ -25,12 +28,10 @@
                     foreground="rgba(242, 242, 242, 0.8)"
                     background="rgba(27, 96, 147, 0.3)"
                     borderRadius="50"
-                    style="width: 30px; height: 30px; margin: 0px 8px;"
+                    style="width: 30px; height: 30px; margin: 0px 8px"
                     @click="move_prev"
                 >
-                    <i
-                        class="ms-Icon ms-Icon--ChevronLeftMed"
-                    ></i>
+                    <i class="ms-Icon ms-Icon--ChevronLeftMed"></i>
                 </fv-button>
                 <fv-button
                     theme="dark"
@@ -65,12 +66,10 @@
                     foreground="rgba(242, 242, 242, 0.8)"
                     background="rgba(27, 96, 147, 0.3)"
                     borderRadius="50"
-                    style="width: 30px; height: 30px; margin: 0px 8px;"
+                    style="width: 30px; height: 30px; margin: 0px 8px"
                     @click="move_next"
                 >
-                    <i
-                        class="ms-Icon ms-Icon--ChevronRightMed"
-                    ></i>
+                    <i class="ms-Icon ms-Icon--ChevronRightMed"></i>
                 </fv-button>
             </div>
             <div class="right-bar">
@@ -79,18 +78,28 @@
                     foreground="rgba(242, 242, 242, 0.8)"
                     background="rgba(27, 96, 147, 0.3)"
                     borderRadius="50"
-                    style="width: 40px; height: 40px; margin: 0px 8px;"
+                    style="width: 40px; height: 40px; margin: 0px 8px"
                     @click="show.panel = !show.panel"
                 >
-                    <i
-                        class="ms-Icon ms-Icon--FullHistory"
-                    ></i>
+                    <i class="ms-Icon ms-Icon--FullHistory"></i>
                 </fv-button>
             </div>
         </div>
-        <fv-Panel v-model="show.panel" :title="'历史'" :width="350" :theme="theme" :isLightDismiss="true" :isAcrylic="true" >
+        <fv-Panel
+            v-model="show.panel"
+            :title="'历史'"
+            :width="350"
+            :theme="theme"
+            :isLightDismiss="true"
+            :isAcrylic="true"
+        >
             <template v-slot:container>
-                <list :theme="theme" :cur_h="cur_h" :history="history" style="padding: 15px;"></list>
+                <list
+                    :theme="theme"
+                    :cur_h="cur_h"
+                    :history="history"
+                    style="padding: 15px"
+                ></list>
             </template>
         </fv-Panel>
         <div v-show="false" ref="placeholder">{{ cur_latex }}</div>
@@ -102,33 +111,35 @@ import { execFile } from "child_process";
 import path from "path";
 import { clipboard } from "electron";
 import displayer from "@/components/home/displayer.vue";
-import list from '@/components/history/list.vue';
+import list from "@/components/history/list.vue";
 import { mapState } from "vuex";
+import CryptoJS from "crypto-js";
+import request from "request";
 
 export default {
     components: {
         displayer,
-        list
+        list,
     },
     data() {
         return {
-            ops: [this.get_baidu, this.get_mathpix],
+            ops: [this.get_baidu, this.get_mathpix, this.get_xunfei],
             cur_latex: "",
             one_times_lock: false,
             show: {
-                panel: false
-            }
+                panel: false,
+            },
         };
     },
     watch: {
-        handlerScan (to, from) {
+        handlerScan(to, from) {
             this.handler_event(to, from);
-        }
+        },
     },
     computed: {
         ...mapState({
             mathjax: (state) => state.mathjax,
-            handlerScan: state => state.handlerScan,
+            handlerScan: (state) => state.handlerScan,
             cur_sub: (state) => state.cur_sub,
             cur_h: (state) => state.cur_h,
             history: (state) => state.history,
@@ -136,14 +147,14 @@ export default {
             theme: (state) => state.theme,
             mathjax_ready: (state) => state.mathjax_ready,
         }),
-        s () {
+        s() {
             return this.subscriptions[this.cur_sub];
         },
-        h () {
-            return this.history.find(item => item.guid === this.cur_h);  
-        }
+        h() {
+            return this.history.find((item) => item.guid === this.cur_h);
+        },
     },
-    mounted () {
+    mounted() {
         this.handler_event(this.handlerScan, false);
     },
     methods: {
@@ -156,45 +167,49 @@ export default {
                 });
             }
         },
-        handler_event (to, from) {
-            if(to === true) {
+        handler_event(to, from) {
+            if (to === true) {
                 this.op();
-                this.$store.commit('triggerHandlerScan', false);
+                this.$store.commit("triggerHandlerScan", false);
             }
         },
-        move_prev () {
-            let index = this.history.indexOf(this.history.find(item => item.guid === this.cur_h));
-            if(index < 0) {
-                if(this.history.length > 0)
+        move_prev() {
+            let index = this.history.indexOf(
+                this.history.find((item) => item.guid === this.cur_h)
+            );
+            if (index < 0) {
+                if (this.history.length > 0)
                     this.$store.commit("reviseCurH", {
                         v: this,
-                        cur_h: this.history[0].guid
-                    })
+                        cur_h: this.history[0].guid,
+                    });
                 return 0;
             }
             index--;
-            if(this.history[index])
+            if (this.history[index])
                 this.$store.commit("reviseCurH", {
                     v: this,
-                    cur_h: this.history[index].guid
+                    cur_h: this.history[index].guid,
                 });
             return 0;
         },
-        move_next () {
-            let index = this.history.indexOf(this.history.find(item => item.guid === this.cur_h));
-            if(index < 0) {
-                if(this.history.length > 0)
+        move_next() {
+            let index = this.history.indexOf(
+                this.history.find((item) => item.guid === this.cur_h)
+            );
+            if (index < 0) {
+                if (this.history.length > 0)
                     this.$store.commit("reviseCurH", {
                         v: this,
-                        cur_h: this.history[0].guid
+                        cur_h: this.history[0].guid,
                     });
                 return 0;
             }
             index++;
-            if(this.history[index])
+            if (this.history[index])
                 this.$store.commit("reviseCurH", {
                     v: this,
-                    cur_h: this.history[index].guid
+                    cur_h: this.history[index].guid,
                 });
             return 0;
         },
@@ -249,7 +264,6 @@ export default {
         async return_svg() {
             let result = await new Promise((resolve, reject) => {
                 this.$nextTick(() => {
-                    console.log(this.$refs.placeholder)
                     let svg = this.$refs.placeholder.querySelectorAll("svg")[0];
                     if (!svg) {
                         reject({ response: "SVG生成失败" });
@@ -373,7 +387,7 @@ export default {
                         });
                         this.$store.commit("reviseCurH", {
                             v: this,
-                            cur_h: h.guid
+                            cur_h: h.guid,
                         });
                         this.one_times_lock = false;
                     })
@@ -476,7 +490,7 @@ export default {
                             });
                             this.$store.commit("reviseCurH", {
                                 v: this,
-                                cur_h: h.guid
+                                cur_h: h.guid,
                             });
                         }
                         this.one_times_lock = false;
@@ -487,6 +501,129 @@ export default {
                         });
                         this.one_times_lock = false;
                     });
+            } catch (e) {
+                console.log(e);
+                this.one_times_lock = false;
+            }
+        },
+        async get_xunfei() {
+            if (this.one_times_lock) {
+                this.$barWarning("正在处理中", {
+                    status: "warning",
+                });
+                return;
+            }
+            this.one_times_lock = true;
+            try {
+                this.origin = await this.get_clip();
+                let base64 = this.origin.replace("data:image/png;base64,", "");
+                let config = {
+                    app_secret: this.getFromData("app_secret"),
+                    app_key: this.getFromData("app_key"),
+                    app_id: this.getFromData("app_id"),
+                    host: "rest-api.xfyun.cn",
+                    url: this.getFromData("url"),
+                    uri: "/v2/itr",
+                };
+                let dataObj = {
+                    common: {
+                        app_id: config.app_id,
+                    },
+                    business: {
+                        ent: "teach-photo-print",
+                        aue: "raw",
+                    },
+                    data: {
+                        image: base64,
+                    },
+                };
+                let digest =
+                    "SHA-256=" +
+                    CryptoJS.enc.Base64.stringify(
+                        CryptoJS.SHA256(JSON.stringify(dataObj))
+                    );
+                let date = new Date().toUTCString();
+                let getAuthStr = (date, digest) => {
+                    let signatureOrigin = `host: ${config.host}\ndate: ${date}\nPOST ${config.uri} HTTP/1.1\ndigest: ${digest}`;
+                    let signatureSha = CryptoJS.HmacSHA256(
+                        signatureOrigin,
+                        config.app_secret
+                    );
+                    let signature = CryptoJS.enc.Base64.stringify(signatureSha);
+                    let authorizationOrigin = `api_key="${config.app_key}", algorithm="hmac-sha256", headers="host date request-line digest", signature="${signature}"`;
+                    return authorizationOrigin;
+                };
+                let auth = getAuthStr(date, digest);
+                let options = {
+                    url: config.url,
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json,version=1.0",
+                        Host: config.host,
+                        Date: date,
+                        Digest: digest,
+                        Authorization: auth,
+                    },
+                    json: true,
+                    body: dataObj,
+                };
+                request.post(options, async (err, resp, body) => {
+                    try {
+                        if (body.code == 0) {
+                            let results = body.data.region;
+                            for (let r of results) {
+                                let latex_bare = `${r.recog.content}`;
+                                let latex_1 = `$${r.recog.content}$`;
+                                let latex_2 = `$$\n${r.recog.content}\n$$`;
+                                let latex_3 = `\\begin{equation}\n${r.recog.content}\n\\end{equation}`;
+                                this.cur_latex = `$$${r.recog.content}$$`;
+                                await this.render_mathpix();
+                                let mathml = await this.return_mathml();
+                                let imgs = await this.return_svg();
+                                let h = {
+                                    guid: this.$SUtility.Guid(),
+                                    latex_bare,
+                                    latex_1,
+                                    latex_2,
+                                    latex_3,
+                                    mathml,
+                                    ...imgs,
+                                    src: this.origin,
+                                    date: this.$SDate.DateToString(new Date()),
+                                };
+                                this.$store.commit("addHistory", {
+                                    v: this,
+                                    h,
+                                });
+                                this.$store.commit("reviseCurH", {
+                                    v: this,
+                                    cur_h: h.guid,
+                                });
+                            }
+                        }
+                    } catch (e) {
+                        console.log(e);
+                    } finally {
+                        this.one_times_lock = false;
+                    }
+                });
+                // this.axios
+                //     .post(config.url, dataObj, {
+                //         headers: {
+                //             "Content-Type": "application/json",
+                //             Accept: "application/json,version=1.0",
+                //             // Host: config.host,
+                //             // Date: date,
+                //             Digest: digest,
+                //             Authorization: auth,
+                //         },
+                //     })
+                //     .then((data) => {
+                //         console.log(data);
+                //     })
+                //     .catch(({ response }) => {
+                //         console.log(response);
+                //     });
             } catch (e) {
                 console.log(e);
                 this.one_times_lock = false;
@@ -514,8 +651,7 @@ export default {
         display: flex;
         overflow: hidden;
 
-        .empty-bg
-        {
+        .empty-bg {
             position: relative;
             width: 100%;
             height: 100%;
@@ -527,13 +663,11 @@ export default {
             user-select: none;
             cursor: default;
 
-            i:first-child
-            {
+            i:first-child {
                 font-size: 96px;
             }
 
-            p
-            {
+            p {
                 margin-top: 15px;
             }
         }
@@ -552,8 +686,7 @@ export default {
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
 
-        .left-bar
-        {
+        .left-bar {
             position: relative;
             width: auto;
             height: 100%;
@@ -565,8 +698,7 @@ export default {
             user-select: none;
             cursor: default;
 
-            p
-            {
+            p {
                 margin: 0px 3px;
                 color: rgba(242, 242, 242, 0.8);
             }
@@ -581,8 +713,7 @@ export default {
             align-items: center;
         }
 
-        .right-bar
-        {
+        .right-bar {
             position: relative;
             width: auto;
             height: 100%;

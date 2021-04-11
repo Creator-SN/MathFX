@@ -602,7 +602,6 @@ export default {
                             for (let r of results) {
                                 content += r.recog.content;
                             }
-
                             let latex_bare = `${content}`;
                             let latex_1 = `$${content}$`;
                             let latex_2 = `$$\n${content}\n$$`;

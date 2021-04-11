@@ -32,8 +32,14 @@ module.exports = {
             // https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/881
             builderOptions: {
                 extraResources: ['./capture'],
-                win:{
-                    icon:"./logo.ico"
+                win: {
+                    icon: "./logo.ico"
+                },
+                nsis: {
+                    oneClick: false,
+                    allowToChangeInstallationDirectory: true,
+                    createDesktopShortcut: true,
+                    createStartMenuShortcut: true
                 }
             }
         }

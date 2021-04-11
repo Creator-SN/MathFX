@@ -5,7 +5,9 @@
             <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
             <div class="global-container">
                 <transition name="move-bottom-to-top">
-                    <router-view></router-view>
+                    <keep-alive>
+                        <router-view></router-view>
+                    </keep-alive>
                 </transition>
             </div>
         </div>

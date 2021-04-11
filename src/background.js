@@ -111,7 +111,7 @@ app.on('ready', async () => {
 
 let tray = null
 app.whenReady().then(() => {
-    tray = new Tray(path.join(__static,'./logo.png') );
+    tray = new Tray(path.join(__static, './logo.png'));
     tray.on("click", () => {
         win.show();
     });
@@ -142,6 +142,23 @@ app.whenReady().then(() => {
     tray.setToolTip('MathX')
     tray.setContextMenu(contextMenu)
 })
+
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+    app.quit()
+} else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+        // 当运行第二个实例时,将会聚焦到mainWindow这个窗口
+        if (win) {
+            if (win.isMinimized()) win.restore()
+            win.focus()
+            win.show()
+        }
+    })
+    // 创建 myWindow, 加载应用的其余部分, etc...
+    // app.on('ready', () => {
+    // })
+}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

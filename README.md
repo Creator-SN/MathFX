@@ -1,4 +1,61 @@
-## Electron Client For Mathpix
+<div align="center">
+    <img src="./src/assets/logo.svg" style="width: 60px;"/>
+    <p>MathX</p>
+    <p>0.1.2</p>
+</div>
+
+<p align="center">
+    <a href="LICENSE">
+      <img src="https://img.shields.io/badge/License-MIT-yellow.svg">
+    </a>
+</p>
+
+## 💡 MathX(Preview)
+
+A pure open source and cross platforms Math Formulates OCR tool based on the Electron.
+
+<div align="center" style="display: flex; justify-content: space-around;">
+    <img src="./src/assets/docs/scan.png" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
+    <img src="./src/assets/docs/scan_dark.png" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
+</div>
+
+## ✨ Installation
+
+See the [Release Page](https://github.com/Creator-SN/MathX/releases).
+
+## 🔨 Tutorial
+
+First, you need to set up the subscriptions, MathX currently support three formulate OCR APIs. Incluing:
+
+1. **Mathpix** **(Recommend)**: You can register the OCR API services with `$1` started, and the current pricing is much cheaper than directly using the Mathpix desktop application, each month you can have a `1,000` free requests. (`Although it costs $1 to sign up and a Credit Card is necessary, but the performance of this API is currently the best`).  [See Details](https://mathpix.com/ocr)
+2. **Xunfei** Formula Recognition API: You can register the OCR API for free and obtain a `500` requests per day. [See Details](https://www.xfyun.cn/service/formula-discern)
+3. **Baidu** Formula Recognition API: You can register the OCR API for free and obtain a `1,000` requests per month. [See Details](https://ai.baidu.com/tech/ocr/formula)
+
+> Note that the performance of `Xunfei` and `Baidu` OCR API is not good in complex science formulates scenes.
+
+Once you have a OCR API subscription, all you need to do is fill the necessary information of the current subscription. Then click this subscrption's item block until the block's border is `blue`.
+
+<div align="center">
+    <img src="./src/assets/docs/subscription.png" style="width: 80%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
+</div>
+
+Now you can scan for a new formulate scene in the `Scan` page or press `Alt + Shift/Cmd + X` to quick scan.
+
+## ⌨ Shortcuts
+
+- `Alt + Shift/Cmd + M`: Show the main program.
+- `Alt + Shift/Cmd + X`: Start a new quick scan.
+
+## 🌏 Language
+
+Currently support two languages.
+
+- English
+- 简体中文(Chinese)
+
+## Acknowledgements
+
+This Project is Develop Based on [VFluentForElectron](https://github.com/Creator-SN/VFluentForElectron).
 
 ## License
 

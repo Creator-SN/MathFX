@@ -1,40 +1,75 @@
 <template>
 <div class="settings-container" :class="[{dark: theme === 'dark'}]">
     <div class="s-row">
-        <p class="s-title">设置</p>
+        <p class="s-title">{{local('Setting')}}</p>
     </div>
     <div class="scroll-view">
         <div class="s-item-block">
-            <p class="s-item-title">主题</p>
+            <p class="s-item-title">{{local('Theme')}}</p>
             <fv-button :theme="theme"
                 fontSize="16"
                 borderRadius="50"
                 style="width: 40px; height: 40px;"
-                :title="theme === 'light' ? '切换到暗黑主题' : '切换到明亮主题'"
+                :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
                 @click="toggleTheme(v)">
                 <i class="ms-Icon" :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"></i>
             </fv-button>
+        </div>
+        <div class="s-item-block">
+            <p class="s-item-title">{{local('Language')}}</p>
+            <fv-Combobox v-model="cur_language" :theme="theme" :options="languages" placeholder="Choose A Language" :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''" @choose-item="chooseLanguage"></fv-Combobox>
         </div>
     </div>
 </div>
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapMutations, mapState, mapGetters } from "vuex";
 
 export default {
+    data () {
+        return {
+            cur_language: {},
+            languages: [
+                { key: "en", text: "English" },
+                { key: "cn", text: "简体中文" }
+            ]
+        }
+    },
+    watch: {
+        language () {
+            this.languageInit();
+        }
+    },
     computed: {
         ...mapState({
+            language: state => state.language,
             theme: (state) => state.theme
         }),
+        ...mapGetters([
+            'local'
+        ]),
         v () {
             return this;
         }
     },
+    mounted () {
+        this.languageInit();
+    },
     methods: {
         ...mapMutations({
-            toggleTheme: "toggleTheme",
-        })
+            reviseLanguage: "reviseLanguage",
+            toggleTheme: "toggleTheme"
+        }),
+        languageInit () {
+            this.cur_language = this.languages.find(item => item.key === this.language);
+        },
+        chooseLanguage (item) {
+            this.reviseLanguage({
+                v: this,
+                language: item.key
+            })
+        }
     }
 }
 </script>

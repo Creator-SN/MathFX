@@ -1,7 +1,7 @@
 <template>
     <div class="subscription-container" :class="[{ dark: theme === 'dark' }]">
         <div class="s-row">
-            <p class="s-title">订阅</p>
+            <p class="s-title">{{local('Subscription')}}</p>
         </div>
         <div class="scroll-view">
             <div
@@ -45,7 +45,7 @@
                         :background="s.revise ? 'rgba(101, 201, 145, 1)' : ''"
                         borderRadius="50"
                         style="width: 40px; height: 40px"
-                        title="编辑"
+                        :title="local('Edit')"
                         @click="reviseInfo(s)"
                     >
                         <i
@@ -62,7 +62,7 @@
                         fontSize="16"
                         borderRadius="50"
                         style="width: 40px; height: 40px; margin-left: 5px"
-                        title="清空"
+                        :title="local('Clear')"
                         @click="clearInfo(s)"
                     >
                         <i class="ms-Icon ms-Icon--Refresh"></i>
@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import apiImg from "@/assets/subscription/api.svg";
 import baiduImg from "@/assets/subscription/baidu.svg";
 import mathpixImg from "@/assets/subscription/mathpix.svg";
@@ -95,6 +95,9 @@ export default {
             cur_sub: (state) => state.cur_sub,
             theme: (state) => state.theme,
         }),
+        ...mapGetters([
+            'local'
+        ])
     },
     mounted() {},
     methods: {
@@ -115,9 +118,9 @@ export default {
             this.$set(this.s_list, this.s_list.indexOf(s), s);
         },
         clearInfo(s) {
-            this.$infoBox("确定清除此订阅下所有信息?", {
+            this.$infoBox(`${this.local('Make sure to clear all information under this subscription')}?`, {
                 status: "warning",
-                title: "清除信息",
+                title: `${this.local('Clear Info')}`,
                 theme: this.theme,
                 confirm: () => {
                     let item = this.itemOfName(s.name);

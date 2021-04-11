@@ -1,6 +1,6 @@
 <template>
     <div id="app" :class="{dark: theme == 'dark'}">
-        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathX'" :settingTitle="'设置'" ref="nav" @item-click="Go($event.url)" @back="$Back()" @setting-click="Go(`/settings`)"></fv-navigation-view>
+        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathX'" :settingTitle="local('Setting')" ref="nav" @item-click="Go($event.url)" @back="$Back()" @setting-click="Go(`/settings`)"></fv-navigation-view>
         <div class="addition-container">
             <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
             <div class="global-container">
@@ -15,9 +15,10 @@
 </template>
 
 <script>
+import i18n from "@/js/i18n.js";
 import titleBar from "@/components/general/titleBar.vue";
 import dataSample from '@/js/data_sample.js';
-import { mapMutations, mapState } from "vuex";
+import { mapMutations, mapState, mapGetters } from "vuex";
 const { ipcRenderer: ipc } = require('electron');
 
 export default {
@@ -41,13 +42,20 @@ export default {
             if(!val)
                 val = { name: '>setting', type: 'setting' };
             this.navigationValue = val;
+        },
+        language () {
+            this.switchLanguage();
         }
     },
     computed:{
         ...mapState({
             mathjax: state => state.mathjax,
+            language: state => state.language,
             theme: (state) => state.theme
         }),
+        ...mapGetters([
+            'local'
+        ]),
         navigationViewBackground () {
             if(this.theme == "light")
                 return "rgba(242, 242, 242, 0.8)";
@@ -56,15 +64,19 @@ export default {
     },
     mounted () {
         this.syncDB();
+        this.i18nInit();
         this.ipcEventInit();
+        this.switchLanguage();
     },
     methods: {
         ...mapMutations({
             toggleTheme: "toggleTheme",
             reviseTheme: "reviseTheme",
             reviseCurH: "reviseCurH",
+            reviseI18N: "reviseI18N",
             reviseCurSub: "reviseCurSub",
             reviseHistory: "reviseHistory",
+            reviseLanguage: "reviseLanguage",
             reviseSubscriptions: "reviseSubscriptions",
             triggerHandlerScan: "triggerHandlerScan"
         }),
@@ -74,11 +86,22 @@ export default {
                 this.triggerHandlerScan(true);
             });
         },
+        i18nInit () {
+            this.reviseI18N(i18n);
+        },
+        switchLanguage () {
+            this.navigationOptions = [
+                { name: this.local('Scan'), icon: "GenericScan", url: "/" },
+                { name: this.local('Subscription'), icon: "Link", url: "/subscription" },
+                { name: this.local('History'), icon: "History", url: "/history" }
+            ];
+        },
         syncDB () {
             let subscriptions = this.$db.get('subscriptions').write();
             let cur_sub = this.$db.get('cur_sub').write();
             let cur_h = this.$db.get('cur_h').write();
             let history = this.$db.get('history').write();
+            let language = this.$db.get('language').write();
             let theme = this.$db.get('theme').write();
             if(!subscriptions)
                 this.reviseSubscriptions({
@@ -119,6 +142,16 @@ export default {
                 this.reviseHistory({
                     v: this,
                     history: history
+                });
+            if(!language)
+                this.reviseLanguage({
+                    v: this,
+                    language: dataSample.language
+                });
+            else
+                this.reviseLanguage({
+                    v: this,
+                    language: language
                 });
             if(!theme)
                 this.reviseTheme({

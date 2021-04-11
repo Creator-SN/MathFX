@@ -8,7 +8,7 @@
                 fontSize="16"
                 borderRadius="50"
                 style="width: 40px; height: 40px;"
-                title="快速复制"
+                :title="local('Quick Copy')"
                 @click="copy_text($event, h.latex_1)">
                 <i class="ms-Icon ms-Icon--Copy"></i>
             </fv-button>
@@ -25,7 +25,7 @@
                 :background="'rgba(173, 38, 45, 0.8)'"
                 borderRadius="50"
                 style="width: 40px; height: 40px;"
-                title="删除"
+                :title="local('Delete')"
                 @click="remove($event, h.guid)">
                 <i class="ms-Icon ms-Icon--Delete"></i>
             </fv-button>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
 import { clipboard } from "electron";
 
 export default {
@@ -49,6 +49,11 @@ export default {
         cur_h: {
             default: 0
         }
+    },
+    computed: {
+        ...mapGetters([
+            'local'
+        ])
     },
     methods: {
         ...mapMutations({

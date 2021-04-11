@@ -12,6 +12,8 @@ export default new Vuex.Store({
         history: [],
         cur_sub: 0,
         cur_h: 0,
+        i18n: {},
+        language: 'en',
         theme: 'light'
     },
     mutations: {
@@ -47,6 +49,10 @@ export default new Vuex.Store({
         triggerHandlerScan(state, msg) {
             state.handlerScan = msg;
         },
+        reviseLanguage(state, obj) {
+            state.language = obj.language;
+            obj.v.$db.set('language', state.language).write();
+        },
         reviseTheme(state, obj) {
             state.theme = obj.theme;
             obj.v.$db.set('theme', state.theme).write();
@@ -75,6 +81,9 @@ export default new Vuex.Store({
             state.history = obj.history;
             obj.v.$db.set('history', state.history).write();
         },
+        reviseI18N(state, i18n) {
+            state.i18n = i18n
+        },
         toggleTheme(state, v) {
             if (state.theme == 'light') {
                 state.theme = 'dark'
@@ -85,6 +94,14 @@ export default new Vuex.Store({
         }
     },
     actions: {},
+    getters: {
+        local: state => text => {
+            let result = state.i18n[text];
+            if(!result)
+                return text;
+            return result[state.language];
+        }
+    },
     modules: {
 
     }

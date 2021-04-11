@@ -1,14 +1,14 @@
 <template>
 <div class="history-container" :class="[{dark: theme === 'dark'}]">
     <div class="s-row">
-        <p class="s-title">历史</p>
+        <p class="s-title">{{local('History')}}</p>
     </div>
     <list :theme="theme" :cur_h="cur_h" :history="history" @item-click="switchH"></list>
 </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import list from '@/components/history/list.vue';
 
 export default {
@@ -25,7 +25,10 @@ export default {
             cur_h: state => state.cur_h,
             history: state => state.history,
             theme: (state) => state.theme
-        })
+        }),
+        ...mapGetters([
+            'local'
+        ])
     },
     methods: {
         switchH () {

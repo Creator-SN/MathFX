@@ -87,7 +87,7 @@
         </div>
         <fv-Panel
             v-model="show.panel"
-            :title="'历史'"
+            :title="local('History')"
             :width="350"
             :theme="theme"
             :isLightDismiss="true"
@@ -112,7 +112,7 @@ import path from "path";
 import { clipboard } from "electron";
 import displayer from "@/components/home/displayer.vue";
 import list from "@/components/history/list.vue";
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import CryptoJS from "crypto-js";
 import request from "request";
 
@@ -151,6 +151,9 @@ export default {
             theme: (state) => state.theme,
             mathjax_ready: (state) => state.mathjax_ready,
         }),
+        ...mapGetters([
+            'local'
+        ]),
         s() {
             return this.subscriptions.find(
                 (item) => item.name === this.cur_sub
@@ -159,6 +162,9 @@ export default {
         h() {
             return this.history.find((item) => item.guid === this.cur_h);
         },
+        getFromData() {
+            return key => { return this.s.data.find((item) => item.key === key).value; }
+        }
     },
     mounted() {
         this.handler_event(this.handlerScan, false);
@@ -167,7 +173,7 @@ export default {
         op() {
             if (this.mathjax_ready) {
                 if(!this.isSubscriptionReady()) {
-                    this.$barWarning(`订阅${this.s.title}信息未就绪`, {
+                    this.$barWarning(`${this.local('Subscription')}${this.s.title}${this.local('Information not ready')}`, {
                         status: "warning",
                     });
                     return 0;
@@ -175,11 +181,11 @@ export default {
                 if(this.ops[this.cur_sub] !== undefined)
                     this.ops[this.cur_sub]();
                 else
-                    this.$barWarning("未选择任何订阅", {
+                    this.$barWarning(`${this.local('No subscriptions were selected')}`, {
                         status: "warning",
                     });
             } else {
-                this.$barWarning("公式渲染程序还未加载", {
+                this.$barWarning(`${this.local('The formula renderer has not been loaded')}`, {
                     status: "warning",
                 });
             }
@@ -241,22 +247,19 @@ export default {
                             let origin = image.toDataURL();
                             resolve(origin);
                         } else {
-                            this.$barWarning("截屏为空", {
+                            this.$barWarning(`${this.local('Screenshot is empty')}`, {
                                 status: "warning",
                             });
                             reject(-1);
                         }
                     } else {
-                        this.$barWarning("未获取到截屏", {
+                        this.$barWarning(`${this.local('No screenshot is obtained')}`, {
                             status: "warning",
                         });
                         reject(-1);
                     }
                 });
             });
-        },
-        getFromData(key) {
-            return this.s.data.find((item) => item.key === key).value;
         },
         isSubscriptionReady () {
             for(let key in this.s.data) {
@@ -282,7 +285,7 @@ export default {
                             }
                         );
                     });
-                } else reject({ response: "渲染失败" });
+                } else reject({ response: `${this.local('Initialize Render failed')}` });
             });
         },
         async return_svg() {
@@ -290,7 +293,7 @@ export default {
                 this.$nextTick(() => {
                     let svg = this.$refs.placeholder.querySelectorAll("svg")[0];
                     if (!svg) {
-                        reject({ response: "SVG生成失败" });
+                        reject({ response: `${this.local('SVG generate failure')}` });
                         return;
                     }
                     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -323,7 +326,7 @@ export default {
                             return;
                         });
                     }
-                    reject({ response: "获取mathml失败" });
+                    reject({ response: `${this.local('Failed to get MathML')}` });
                     return;
                 });
             });
@@ -346,7 +349,7 @@ export default {
         },
         async get_mathpix() {
             if (this.one_times_lock) {
-                this.$barWarning("正在处理中", {
+                this.$barWarning(`${this.local('Processing')}`, {
                     status: "warning",
                 });
                 return;
@@ -428,7 +431,7 @@ export default {
         },
         async get_baidu() {
             if (this.one_times_lock) {
-                this.$barWarning("正在处理中", {
+                this.$barWarning(`${this.local('Processing')}`, {
                     status: "warning",
                 });
                 return;
@@ -532,7 +535,7 @@ export default {
         },
         async get_xunfei() {
             if (this.one_times_lock) {
-                this.$barWarning("正在处理中", {
+                this.$barWarning(`${this.local('Processing')}`, {
                     status: "warning",
                 });
                 return;

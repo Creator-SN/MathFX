@@ -104,6 +104,7 @@
 
 <script>
 import { clipboard, nativeImage } from "electron";
+import { mapGetters } from "vuex";
 
 export default {
     props: {
@@ -126,6 +127,9 @@ export default {
     mounted() {},
     beforeDestroy() {},
     computed: {
+        ...mapGetters([
+            'local'
+        ]),
         fomulate() {
             return [
                 this.value.latex_bare,
@@ -160,7 +164,7 @@ export default {
             img = nativeImage.createFromBuffer(img.toPNG());
             if (!img.isEmpty()) clipboard.writeImage(img);
             else {
-                this.$barWarning("空图像内容", {
+                this.$barWarning(`${this.local('Empty image content')}`, {
                     status: "error",
                 });
             }

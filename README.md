@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./src/assets/logo.svg" style="width: 60px;"/>
+    <img src="./src/assets/logo.svg" width="60" style="width: 60px;"/>
     <p>MathX</p>
     <p>0.1.2</p>
 </div>
@@ -15,8 +15,8 @@
 A pure open source and cross platforms Math Formulates OCR tool based on the Electron.
 
 <div align="center" style="display: flex; justify-content: space-around;">
-    <img src="./src/assets/docs/scan.png" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
-    <img src="./src/assets/docs/scan_dark.png" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
+    <img src="./src/assets/docs/scan.png" width="320" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
+    <img src="./src/assets/docs/scan_dark.png" width="320" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
 </div>
 
 ## ✨ Installation

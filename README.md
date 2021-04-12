@@ -1,7 +1,7 @@
 <div align="center">
     <img src="./src/assets/logo.svg" width="60" style="width: 60px;"/>
     <p>MathX</p>
-    <p>0.1.2</p>
+    <p><img src="https://img.shields.io/github/v/release/Creator-SN/MathX" /></p>
 </div>
 
 <p align="center">

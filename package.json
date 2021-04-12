@@ -1,67 +1,83 @@
 {
-  "name": "mathx",
-  "version": "0.1.2",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "electron:build": "vue-cli-service electron:build",
-    "electron:serve": "vue-cli-service electron:serve",
-    "package:win64": "electron-packager . app --win --out dist --arch=x64 --electron-version 9.0.0 --overwrite --ignore=node_modules",
-    "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
-  },
-  "main": "background.js",
-  "dependencies": {
-    "axios": "^0.21.1",
-    "core-js": "^3.6.5",
-    "crypto-js": "^4.0.0",
-    "fs-extra": "^9.1.0",
-    "ini": "^2.0.0",
-    "lowdb": "^1.0.0",
-    "node-sass": "^4.14.1",
-    "npm-check": "^5.9.2",
-    "sass-loader": "^8.0.2",
-    "vfluentdesign": "^0.0.96",
-    "vue": "^2.6.11",
-    "vue-axios": "^3.2.4",
-    "vue-router": "^3.4.9",
-    "vuex": "^3.6.0"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "babel-eslint": "^10.1.0",
-    "electron": "^9.0.0",
-    "electron-devtools-installer": "^3.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "vue-cli-plugin-electron-builder": "~2.0.0-rc.5",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
+    "name": "mathx",
+    "version": "0.1.3",
+    "private": false,
+    "author": {
+        "name": "Creator-SN",
+        "url": "https://github.com/Creator-SN"
     },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
+    "description": "Formula recognition client.Support Mathpix,Xunfei,Baidu API",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Creator-SN/MathX"
+    },
+    "keywords": [
+        "mathpix",
+        "xunfei",
+        "baidu",
+        "formula recognition"
     ],
-    "parserOptions": {
-      "parser": "babel-eslint"
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "lint": "vue-cli-service lint",
+        "electron:build": "vue-cli-service electron:build",
+        "electron:serve": "vue-cli-service electron:serve",
+        "electron:build:win": "vue-cli-service electron:build --publish never",
+        "postinstall": "electron-builder install-app-deps",
+        "postuninstall": "electron-builder install-app-deps",
+        "version:win": "powershell build/updateVersion.ps1"
     },
-    "rules": {
-      "no-undef": "off",
-      "no-unused-vars": "off",
-      "no-empty": "off"
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "main": "background.js",
+    "dependencies": {
+        "axios": "^0.21.1",
+        "core-js": "^3.6.5",
+        "crypto-js": "^4.0.0",
+        "fs-extra": "^9.1.0",
+        "ini": "^2.0.0",
+        "lowdb": "^1.0.0",
+        "node-sass": "^4.14.1",
+        "npm-check": "^5.9.2",
+        "sass-loader": "^8.0.2",
+        "vfluentdesign": "^0.0.96",
+        "vue": "^2.6.11",
+        "vue-axios": "^3.2.4",
+        "vue-router": "^3.4.9",
+        "vuex": "^3.6.0"
+    },
+    "devDependencies": {
+        "@vue/cli-plugin-babel": "~4.5.0",
+        "@vue/cli-plugin-eslint": "~4.5.0",
+        "@vue/cli-service": "~4.5.0",
+        "babel-eslint": "^10.1.0",
+        "electron": "^9.0.0",
+        "electron-devtools-installer": "^3.1.0",
+        "eslint": "^6.7.2",
+        "eslint-plugin-vue": "^6.2.2",
+        "vue-cli-plugin-electron-builder": "~2.0.0-rc.5",
+        "vue-template-compiler": "^2.6.11"
+    },
+    "eslintConfig": {
+        "root": true,
+        "env": {
+            "node": true
+        },
+        "extends": [
+            "plugin:vue/essential",
+            "eslint:recommended"
+        ],
+        "parserOptions": {
+            "parser": "babel-eslint"
+        },
+        "rules": {
+            "no-undef": "off",
+            "no-unused-vars": "off",
+            "no-empty": "off"
+        }
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead"
+    ]
 }

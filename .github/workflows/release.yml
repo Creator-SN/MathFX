@@ -41,10 +41,10 @@ jobs:
         uses: dawidd6/action-get-tag@v1
 
       - name: Archive Release
-        run: powershell Compress-Archive -Path ./dist_electron/ -DestinationPath win_x64_mathX_${{steps.tag.outputs.tag}}.zip
+        run: powershell Compress-Archive -Path ./dist_electron/ -DestinationPath win_x64_MathFX_${{steps.tag.outputs.tag}}.zip
 
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "win_x64_mathX_${{steps.tag.outputs.tag}}.zip"
+          artifacts: "win_x64_MathFX_${{steps.tag.outputs.tag}}.zip"
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,5 @@
 {
-    "name": "mathx",
+    "name": "mathfx",
     "version": "0.1.3",
     "private": false,
     "author": {
@@ -9,7 +9,7 @@
     "description": "Formula recognition client.Support Mathpix,Xunfei,Baidu API",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Creator-SN/MathX"
+        "url": "https://github.com/Creator-SN/MathFX"
     },
     "keywords": [
         "mathpix",

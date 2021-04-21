@@ -19,6 +19,11 @@ A pure open source and cross platforms Math Formulates OCR tool based on the Ele
     <img src="./src/assets/docs/scan_dark.png" width="320" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
 </div>
 
+## 🎈 Platform
+
+- ✔ Win 10 [Supported]
+- 💤 Mac [Coming Soon]
+
 ## ✨ Installation
 
 See the [Release Page](https://github.com/Creator-SN/MathX/releases).

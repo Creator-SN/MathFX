@@ -27,3 +27,5 @@ pnpm-debug.log*
 **/Snipaste/*
 public/config.ini
 public/temp.json
+/capture/**
+pkg/**

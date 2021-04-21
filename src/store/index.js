@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import { HandyScreenshotPlugin } from '../js/paste_plugins.js'
 
 Vue.use(Vuex);
 
@@ -14,7 +15,8 @@ export default new Vuex.Store({
         cur_h: 0,
         i18n: {},
         language: 'en',
-        theme: 'light'
+        theme: 'light',
+        paste_plugin: new HandyScreenshotPlugin()
     },
     mutations: {
         readyMathJax(state, mathjax) {
@@ -97,7 +99,7 @@ export default new Vuex.Store({
     getters: {
         local: state => text => {
             let result = state.i18n[text];
-            if(!result)
+            if (!result)
                 return text;
             return result[state.language];
         }

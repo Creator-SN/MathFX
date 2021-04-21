@@ -98,5 +98,17 @@ export default {
     "Initialize Render failed": {
         en: "Initialize Render failed",
         cn: "渲染失败"
+    },
+    'Clip Program does not exists': {
+        en: "Clip Program does not exists",
+        cn: "截屏软件不存在"
+    },
+    'Download Clip Program ...': {
+        en: "Download Clip Program ...",
+        cn: "下载Clip第三方程序中..."
+    },
+    'Download Success': {
+        en: "Download Success",
+        cn: "下载成功..."
     }
 }

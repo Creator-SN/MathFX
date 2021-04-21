@@ -150,10 +150,9 @@ export default {
             subscriptions: (state) => state.subscriptions,
             theme: (state) => state.theme,
             mathjax_ready: (state) => state.mathjax_ready,
+            clip: (state) => state.paste_plugin,
         }),
-        ...mapGetters([
-            'local'
-        ]),
+        ...mapGetters(["local"]),
         s() {
             return this.subscriptions.find(
                 (item) => item.name === this.cur_sub
@@ -163,8 +162,10 @@ export default {
             return this.history.find((item) => item.guid === this.cur_h);
         },
         getFromData() {
-            return key => { return this.s.data.find((item) => item.key === key).value; }
-        }
+            return (key) => {
+                return this.s.data.find((item) => item.key === key).value;
+            };
+        },
     },
     mounted() {
         this.handler_event(this.handlerScan, false);
@@ -172,22 +173,33 @@ export default {
     methods: {
         op() {
             if (this.mathjax_ready) {
-                if(!this.isSubscriptionReady()) {
-                    this.$barWarning(`${this.local('Subscription')}${this.s.title}${this.local('Information not ready')}`, {
-                        status: "warning",
-                    });
+                if (!this.isSubscriptionReady()) {
+                    this.$barWarning(
+                        `${this.local("Subscription")}${
+                            this.s.title
+                        }${this.local("Information not ready")}`,
+                        {
+                            status: "warning",
+                        }
+                    );
                     return 0;
                 }
-                if(this.ops[this.cur_sub] !== undefined)
+                if (this.ops[this.cur_sub] !== undefined)
                     this.ops[this.cur_sub]();
                 else
-                    this.$barWarning(`${this.local('No subscriptions were selected')}`, {
-                        status: "warning",
-                    });
+                    this.$barWarning(
+                        `${this.local("No subscriptions were selected")}`,
+                        {
+                            status: "warning",
+                        }
+                    );
             } else {
-                this.$barWarning(`${this.local('The formula renderer has not been loaded')}`, {
-                    status: "warning",
-                });
+                this.$barWarning(
+                    `${this.local("The formula renderer has not been loaded")}`,
+                    {
+                        status: "warning",
+                    }
+                );
             }
         },
         handler_event(to, from) {
@@ -237,33 +249,91 @@ export default {
             return 0;
         },
         async get_clip() {
-            let app_root = path.join(__static, "../capture/");
-            let snip = execFile(path.join(app_root, "./PrintScr.exe"));
-            return await new Promise((resolve, reject) => {
-                snip.on("exit", (code) => {
-                    if (code == 1) {
-                        let image = clipboard.readImage("clipboard");
-                        if (!image.isEmpty()) {
-                            let origin = image.toDataURL();
-                            resolve(origin);
-                        } else {
-                            this.$barWarning(`${this.local('Screenshot is empty')}`, {
-                                status: "warning",
-                            });
-                            reject(-1);
-                        }
-                    } else {
-                        this.$barWarning(`${this.local('No screenshot is obtained')}`, {
-                            status: "warning",
+            // let app_root = path.join(__static, "../capture/");
+            // let snip = execFile(path.join(app_root, "./PrintScr.exe"));
+            // return await new Promise((resolve, reject) => {
+            //     snip.on("exit", (code) => {
+            //         if (code == 1) {
+            //             let image = clipboard.readImage("clipboard");
+            //             if (!image.isEmpty()) {
+            //                 let origin = image.toDataURL();
+            //                 resolve(origin);
+            //             } else {
+            //                 this.$barWarning(`${this.local('Screenshot is empty')}`, {
+            //                     status: "warning",
+            //                 });
+            //                 reject(-1);
+            //             }
+            //         } else {
+            //             this.$barWarning(`${this.local('No screenshot is obtained')}`, {
+            //                 status: "warning",
+            //             });
+            //             reject(-1);
+            //         }
+            //     });
+            // });
+            if (
+                await this.clip.exists(true, () => {
+                    this.$barWarning(this.local('Download Clip Program ...'), {
+                        status: "correct",
+                        autoClose: -1,
+                    });
+                },()=>{
+                    this.$barWarning(this.local('Download Success',{
+                        status:"correct"
+                    }))
+                })
+            ) {
+                return this.clip
+                    .clip()
+                    .then((code) => {
+                        return new Promise((resolve, reject) => {
+                            if (code == 1) {
+                                let image = clipboard.readImage("clipboard");
+                                if (!image.isEmpty()) {
+                                    let origin = image.toDataURL();
+                                    resolve(origin);
+                                } else {
+                                    this.$barWarning(
+                                        `${this.local("Screenshot is empty")}`,
+                                        {
+                                            status: "warning",
+                                        }
+                                    );
+                                    reject(-1);
+                                }
+                            } else {
+                                this.$barWarning(
+                                    `${this.local(
+                                        "No screenshot is obtained"
+                                    )}`,
+                                    {
+                                        status: "warning",
+                                    }
+                                );
+                                reject(-1);
+                            }
                         });
-                        reject(-1);
+                    })
+                    .catch(() => {
+                        throw -1;
+                    });
+            } else {
+                this.$barWarning(
+                    `${this.local("Clip Program does not exists")}`,
+                    {
+                        status: "error",
                     }
-                });
-            });
+                );
+                throw -1;
+            }
         },
-        isSubscriptionReady () {
-            for(let key in this.s.data) {
-                if(this.s.data[key].value === '' || this.s.data[key].value === undefined)
+        isSubscriptionReady() {
+            for (let key in this.s.data) {
+                if (
+                    this.s.data[key].value === "" ||
+                    this.s.data[key].value === undefined
+                )
                     return false;
             }
             return true;
@@ -285,7 +355,10 @@ export default {
                             }
                         );
                     });
-                } else reject({ response: `${this.local('Initialize Render failed')}` });
+                } else
+                    reject({
+                        response: `${this.local("Initialize Render failed")}`,
+                    });
             });
         },
         async return_svg() {
@@ -293,7 +366,9 @@ export default {
                 this.$nextTick(() => {
                     let svg = this.$refs.placeholder.querySelectorAll("svg")[0];
                     if (!svg) {
-                        reject({ response: `${this.local('SVG generate failure')}` });
+                        reject({
+                            response: `${this.local("SVG generate failure")}`,
+                        });
                         return;
                     }
                     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -326,7 +401,9 @@ export default {
                             return;
                         });
                     }
-                    reject({ response: `${this.local('Failed to get MathML')}` });
+                    reject({
+                        response: `${this.local("Failed to get MathML")}`,
+                    });
                     return;
                 });
             });
@@ -349,7 +426,7 @@ export default {
         },
         async get_mathpix() {
             if (this.one_times_lock) {
-                this.$barWarning(`${this.local('Processing')}`, {
+                this.$barWarning(`${this.local("Processing")}`, {
                     status: "warning",
                 });
                 return;
@@ -431,7 +508,7 @@ export default {
         },
         async get_baidu() {
             if (this.one_times_lock) {
-                this.$barWarning(`${this.local('Processing')}`, {
+                this.$barWarning(`${this.local("Processing")}`, {
                     status: "warning",
                 });
                 return;
@@ -535,7 +612,7 @@ export default {
         },
         async get_xunfei() {
             if (this.one_times_lock) {
-                this.$barWarning(`${this.local('Processing')}`, {
+                this.$barWarning(`${this.local("Processing")}`, {
                     status: "warning",
                 });
                 return;

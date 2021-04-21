@@ -139,7 +139,7 @@ app.whenReady().then(() => {
             }
         }
     ])
-    tray.setToolTip('MathX')
+    tray.setToolTip('MathFX')
     tray.setContextMenu(contextMenu)
 })
 

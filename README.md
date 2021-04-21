@@ -1,7 +1,7 @@
 <div align="center">
     <img src="./src/assets/logo.svg" width="60" style="width: 60px;"/>
-    <p>MathX</p>
-    <p><img src="https://img.shields.io/github/v/release/Creator-SN/MathX" /></p>
+    <p>MathFX</p>
+    <p><img src="https://img.shields.io/github/v/release/Creator-SN/MathFX" /></p>
 </div>
 
 <p align="center">
@@ -10,7 +10,7 @@
     </a>
 </p>
 
-## 💡 MathX(Preview)
+## 💡 MathFX(Preview)
 
 A pure open source and cross platforms Math Formulates OCR tool based on the Electron.
 
@@ -26,11 +26,11 @@ A pure open source and cross platforms Math Formulates OCR tool based on the Ele
 
 ## ✨ Installation
 
-See the [Release Page](https://github.com/Creator-SN/MathX/releases).
+See the [Release Page](https://github.com/Creator-SN/MathFX/releases).
 
 ## 🔨 Tutorial
 
-First, you need to set up the subscriptions, MathX currently support three formulate OCR APIs. Incluing:
+First, you need to set up the subscriptions, MathFX currently support three formulate OCR APIs. Incluing:
 
 1. **Mathpix** **(Recommend)**: You can register the OCR API services with `$1` started, and the current pricing is much cheaper than directly using the Mathpix desktop application, each month you can have a `1,000` free requests. (`Although it costs $1 to sign up and a Credit Card is necessary, but the performance of this API is currently the best`).  [See Details](https://mathpix.com/ocr)
 2. **Xunfei** Formula Recognition API: You can register the OCR API for free and obtain a `500` requests per day. [See Details](https://www.xfyun.cn/service/formula-discern)

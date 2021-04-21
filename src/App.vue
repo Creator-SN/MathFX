@@ -1,6 +1,6 @@
 <template>
     <div id="app" :class="{dark: theme == 'dark'}">
-        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathX'" :settingTitle="local('Setting')" ref="nav" @item-click="Go($event.url)" @back="$Back()" @setting-click="Go(`/settings`)"></fv-navigation-view>
+        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathFX'" :settingTitle="local('Setting')" ref="nav" @item-click="Go($event.url)" @back="$Back()" @setting-click="Go(`/settings`)"></fv-navigation-view>
         <div class="addition-container">
             <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
             <div class="global-container">

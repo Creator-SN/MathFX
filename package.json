@@ -1,6 +1,6 @@
 {
     "name": "mathfx",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "private": false,
     "author": {
         "name": "Creator-SN",
@@ -34,6 +34,7 @@
         "axios": "^0.21.1",
         "core-js": "^3.6.5",
         "crypto-js": "^4.0.0",
+        "electron-vue-screen-capture": "^0.0.10",
         "fs-extra": "^9.1.0",
         "ini": "^2.0.0",
         "lowdb": "^1.0.0",

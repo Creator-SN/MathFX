@@ -24,11 +24,11 @@ export default db // 暴露出去
  *
  */
 function init_db_file() {
-    if (process.type !== 'renderer') {
-        if (!fs.pathExistsSync(STORE_PATH)) { // 如果不存在路径
-            fs.mkdirpSync(STORE_PATH) // 就创建
-        }
+  if (process.type !== 'renderer') {
+    if (!fs.pathExistsSync(STORE_PATH)) { // 如果不存在路径
+      fs.mkdirpSync(STORE_PATH) // 就创建
     }
+  }
 }
 
 
@@ -37,8 +37,8 @@ function init_db_file() {
  *
  */
 function init_db() {
-    if (!db.has('init_status').value()) { // 先判断该值存不存在
-        db.defaults(dataSample)
-            .write()
-    }
+  if (!db.has('init_status').value()) { // 先判断该值存不存在
+    db.defaults(dataSample)
+      .write()
+  }
 }

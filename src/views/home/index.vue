@@ -109,7 +109,7 @@
 <script>
 import { execFile } from "child_process";
 import path from "path";
-import { clipboard } from "electron";
+import { clipboard, ipcRenderer } from "electron";
 import displayer from "@/components/home/displayer.vue";
 import list from "@/components/history/list.vue";
 import { mapState, mapGetters } from "vuex";
@@ -154,9 +154,10 @@ export default {
         }),
         ...mapGetters(["local"]),
         s() {
-            return this.subscriptions.find(
-                (item) => item.name === this.cur_sub
+            return this.subscriptions.find((item) =>
+                item.name.startsWith(this.cur_sub)
             );
+            // return this.subscriptions[this.cur_sub]
         },
         h() {
             return this.history.find((item) => item.guid === this.cur_h);
@@ -249,84 +250,22 @@ export default {
             return 0;
         },
         async get_clip() {
-            // let app_root = path.join(__static, "../capture/");
-            // let snip = execFile(path.join(app_root, "./PrintScr.exe"));
-            // return await new Promise((resolve, reject) => {
-            //     snip.on("exit", (code) => {
-            //         if (code == 1) {
-            //             let image = clipboard.readImage("clipboard");
-            //             if (!image.isEmpty()) {
-            //                 let origin = image.toDataURL();
-            //                 resolve(origin);
-            //             } else {
-            //                 this.$barWarning(`${this.local('Screenshot is empty')}`, {
-            //                     status: "warning",
-            //                 });
-            //                 reject(-1);
-            //             }
-            //         } else {
-            //             this.$barWarning(`${this.local('No screenshot is obtained')}`, {
-            //                 status: "warning",
-            //             });
-            //             reject(-1);
-            //         }
-            //     });
-            // });
-            if (
-                await this.clip.exists(true, () => {
-                    this.$barWarning(this.local('Download Clip Program ...'), {
-                        status: "correct",
-                        autoClose: -1,
-                    });
-                },()=>{
-                    this.$barWarning(this.local('Download Success',{
-                        status:"correct"
-                    }))
-                })
-            ) {
-                return this.clip
-                    .clip()
-                    .then((code) => {
-                        return new Promise((resolve, reject) => {
-                            if (code == 1) {
-                                let image = clipboard.readImage("clipboard");
-                                if (!image.isEmpty()) {
-                                    let origin = image.toDataURL();
-                                    resolve(origin);
-                                } else {
-                                    this.$barWarning(
-                                        `${this.local("Screenshot is empty")}`,
-                                        {
-                                            status: "warning",
-                                        }
-                                    );
-                                    reject(-1);
-                                }
-                            } else {
-                                this.$barWarning(
-                                    `${this.local(
-                                        "No screenshot is obtained"
-                                    )}`,
-                                    {
-                                        status: "warning",
-                                    }
-                                );
-                                reject(-1);
-                            }
-                        });
-                    })
-                    .catch(() => {
-                        throw -1;
-                    });
-            } else {
-                this.$barWarning(
-                    `${this.local("Clip Program does not exists")}`,
-                    {
-                        status: "error",
+            return await new Promise((resolve, reject) => {
+                ipcRenderer.send("capture");
+                let listener = (_, data) => {
+                    // Remove Listener
+                    ipcRenderer.removeListener("getCaptureData", listener);
+                    if (!data) {
+                        this.$barWarning(
+                            this.local("No screenshot is obtained")
+                        );
+                        reject(-1);
+                    } else {
+                        resolve(data);
                     }
-                );
-                throw -1;
-            }
+                };
+                ipcRenderer.on("getCaptureData", listener);
+            });
         },
         isSubscriptionReady() {
             for (let key in this.s.data) {

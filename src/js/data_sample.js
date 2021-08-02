@@ -2,8 +2,8 @@ export default {
     init_status: true,
     subscriptions: [
         {
-            name: 'mathpix(Recommend)',
-            title: 'MathPix API',
+            name: 'mathpix',
+            title: 'MathPix API(Recommend)',
             data: [
                 { name: 'Url', key: 'url', value: '' },
                 { name: 'App ID', key: 'app_id', value: '' },

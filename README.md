@@ -22,7 +22,7 @@ A pure open source and cross platforms Math Formulates OCR tool based on the Ele
 ## 🎈 Platform
 
 - ✔ Win 10 [Supported]
-- 💤 Mac [Coming Soon]
+- ✔ Mac [Supported]
 
 ## ✨ Installation
 

@@ -102,7 +102,7 @@ export default {
     mounted() {},
     methods: {
         itemOfName(name) {
-            return this.subscriptions.find((item) => item.name === name);
+            return this.subscriptions.find((item) => item.name.startsWith(name));
         },
         reviseInfo(s) {
             if (!s.revise) {

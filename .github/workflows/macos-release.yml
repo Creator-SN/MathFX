@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Release
+name: Release macos
 
 # Controls when the action will run.
 on:
@@ -17,7 +17,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: windows-latest
+    runs-on: macos-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -33,7 +33,7 @@ jobs:
       - name: install dependencies
         run: yarn
 
-      - name: build win x64
+      - name: build macos x64
         run: yarn electron:build
 
       - name: Get tag
@@ -41,11 +41,11 @@ jobs:
         uses: dawidd6/action-get-tag@v1
 
       - name: Archive Release
-        run: powershell Compress-Archive -Path ./dist_electron/ -DestinationPath win_x64_MathFX_${{steps.tag.outputs.tag}}.zip
+        run: zip -r  -o 'macos_x64_MathFX_${{steps.tag.outputs.tag}}.zip' './dist_electron/'
 
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "win_x64_MathFX_${{steps.tag.outputs.tag}}.zip"
+          artifacts: "macos_x64_MathFX_${{steps.tag.outputs.tag}}.zip"
           token: ${{ secrets.GITHUB_TOKEN }}

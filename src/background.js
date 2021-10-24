@@ -31,7 +31,6 @@ async function createWindow() {
     }
   })
   // init capture window
-  capture.init(win)
 
   ipcMain.on("min", () => {
     win.minimize();
@@ -54,13 +53,13 @@ async function createWindow() {
   });
 
   ipcMain.on("capture", () => {
+    capture.init(win)
     capture.start('minimum')
   })
 
   ipcMain.on('getCaptureData', (e, data) => {
-    // console.log(data)
     capture.targetWin.send('getCaptureData',data)
-    capture.close('refresh')
+    capture.close()
     capture.targetWin.show()
   })
 
@@ -87,7 +86,9 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  if (BrowserWindow.getAllWindows().length === 0){
+    createWindow()
+  }
 })
 
 // This method will be called when Electron has finished

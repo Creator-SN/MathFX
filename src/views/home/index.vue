@@ -255,13 +255,13 @@ export default {
                 let listener = (_, data) => {
                     // Remove Listener
                     ipcRenderer.removeListener("getCaptureData", listener);
-                    if (!data) {
+                    if (typeof data == "string") {
+                        resolve(data);
+                    } else {
                         this.$barWarning(
                             this.local("No screenshot is obtained")
                         );
                         reject(-1);
-                    } else {
-                        resolve(data);
                     }
                 };
                 ipcRenderer.on("getCaptureData", listener);

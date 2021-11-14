@@ -1,6 +1,6 @@
 {
     "name": "mathfx",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "private": false,
     "author": {
         "name": "Creator-SN",
@@ -37,7 +37,6 @@
         "fs-extra": "^9.1.0",
         "ini": "^2.0.0",
         "lowdb": "^1.0.0",
-        "node-sass": "^4.14.1",
         "npm-check": "^5.9.2",
         "sass-loader": "^8.0.2",
         "vfluentdesign": "^0.1.33",
@@ -55,6 +54,7 @@
         "electron-devtools-installer": "^3.1.0",
         "eslint": "^6.7.2",
         "eslint-plugin-vue": "^6.2.2",
+        "sass": "^1.43.4",
         "vue-cli-plugin-electron-builder": "~2.0.0-rc.5",
         "vue-template-compiler": "^2.6.11"
     },

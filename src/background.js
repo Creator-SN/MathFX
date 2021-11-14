@@ -15,6 +15,7 @@ protocol.registerSchemesAsPrivileged([
 
 let win = null;
 async function createWindow() {
+  
   // Create the browser window.
   win = new BrowserWindow({
     frame: false,
@@ -31,6 +32,7 @@ async function createWindow() {
     }
   })
   // init capture window
+  capture.init(win)
 
   ipcMain.on("min", () => {
     win.minimize();
@@ -53,13 +55,12 @@ async function createWindow() {
   });
 
   ipcMain.on("capture", () => {
-    capture.init(win)
     capture.start('minimum')
   })
 
   ipcMain.on('getCaptureData', (e, data) => {
     capture.targetWin.send('getCaptureData',data)
-    capture.close()
+    capture.close('hide')
     capture.targetWin.show()
   })
 

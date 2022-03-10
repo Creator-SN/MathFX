@@ -1,23 +1,42 @@
 <template>
-<div class="settings-container" :class="[{dark: theme === 'dark'}]">
-    <div class="s-row">
-        <p class="s-title">{{local('Setting')}}</p>
-    </div>
-    <div class="scroll-view">
-        <div class="s-item-block">
-            <p class="s-item-title">{{local('Theme')}}</p>
-            <fv-button :theme="theme"
-                fontSize="16"
-                borderRadius="50"
-                style="width: 40px; height: 40px;"
-                :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
-                @click="toggleTheme(v)">
-                <i class="ms-Icon" :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"></i>
-            </fv-button>
+    <div
+        class="settings-container"
+        :class="[{dark: theme === 'dark'}]"
+    >
+        <div class="s-row">
+            <p class="s-title">{{local('Setting')}}</p>
         </div>
-        <div class="s-item-block">
-            <p class="s-item-title">{{local('Language')}}</p>
-            <fv-Combobox v-model="cur_language" :theme="theme" :options="languages" placeholder="Choose A Language" :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''" @choose-item="chooseLanguage"></fv-Combobox>
+        <div class="scroll-view">
+            <div class="s-item-block">
+                <p class="s-item-title">{{local('Theme')}}</p>
+                <fv-button
+                    :theme="theme"
+                    fontSize="16"
+                    borderRadius="50"
+                    style="width: 40px; height: 40px;"
+                    :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
+                    @click="toggleTheme(v)"
+                >
+                    <i
+                        class="ms-Icon"
+                        :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"
+                    ></i>
+                </fv-button>
+            </div>
+            <div class="s-item-block">
+                <p class="s-item-title">{{local('Language')}}</p>
+                <fv-Combobox
+                    v-model="cur_language"
+                    :theme="theme"
+                    :options="languages"
+                    placeholder="Choose A Language"
+                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''"
+                    @choose-item="chooseLanguage"
+                >
+                    <template v-slot:default="x">
+                        <p>{{x.item.text}}</p>
+                    </template>
+            </fv-Combobox>
         </div>
     </div>
 </div>
@@ -27,56 +46,55 @@
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 export default {
-    data () {
+    data() {
         return {
             cur_language: {},
             languages: [
                 { key: "en", text: "English" },
-                { key: "cn", text: "简体中文" }
-            ]
-        }
+                { key: "cn", text: "简体中文" },
+            ],
+        };
     },
     watch: {
-        language () {
+        language() {
             this.languageInit();
-        }
+        },
     },
     computed: {
         ...mapState({
-            language: state => state.language,
-            theme: (state) => state.theme
+            language: (state) => state.language,
+            theme: (state) => state.theme,
         }),
-        ...mapGetters([
-            'local'
-        ]),
-        v () {
+        ...mapGetters(["local"]),
+        v() {
             return this;
-        }
+        },
     },
-    mounted () {
+    mounted() {
         this.languageInit();
     },
     methods: {
         ...mapMutations({
             reviseLanguage: "reviseLanguage",
-            toggleTheme: "toggleTheme"
+            toggleTheme: "toggleTheme",
         }),
-        languageInit () {
-            this.cur_language = this.languages.find(item => item.key === this.language);
+        languageInit() {
+            this.cur_language = this.languages.find(
+                (item) => item.key === this.language
+            );
         },
-        chooseLanguage (item) {
+        chooseLanguage(item) {
             this.reviseLanguage({
                 v: this,
-                language: item.key
-            })
-        }
-    }
-}
+                language: item.key,
+            });
+        },
+    },
+};
 </script>
 
 <style lang="scss">
-.settings-container
-{
+.settings-container {
     position: relative;
     width: 100%;
     height: 100%;
@@ -86,29 +104,23 @@ export default {
     overflow: hidden;
     transition: all 0.3s;
 
-    &.dark
-    {
+    &.dark {
         background: rgba(36, 36, 36, 1);
 
-        .s-title
-        {
+        .s-title {
             color: whitesmoke;
         }
 
-        .scroll-view
-        {
-            .s-item-block
-            {
-                .s-item-title
-                {
+        .scroll-view {
+            .s-item-block {
+                .s-item-title {
                     color: whitesmoke;
                 }
             }
         }
     }
 
-    .s-row
-    {
+    .s-row {
         position: relative;
         margin: 25px 0px;
         padding: 0px 15px;
@@ -117,15 +129,13 @@ export default {
         align-items: center;
     }
 
-    .s-title
-    {
+    .s-title {
         font-size: 24px;
         user-select: none;
         cursor: default;
     }
 
-    .scroll-view
-    {
+    .scroll-view {
         position: relative;
         width: 100%;
         flex: 1;
@@ -134,8 +144,7 @@ export default {
         align-items: center;
         overflow: auto;
 
-        .s-item-block
-        {
+        .s-item-block {
             position: relative;
             width: calc(100% - 30px);
             height: auto;
@@ -143,8 +152,7 @@ export default {
             display: flex;
             flex-direction: column;
 
-            .s-item-title
-            {
+            .s-item-title {
                 user-select: none;
                 cursor: default;
             }

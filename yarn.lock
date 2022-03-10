@@ -10642,10 +10642,10 @@ version-range@^1.0.0:
   dependencies:
     version-compare "^1.0.0"
 
-vfluentdesign@^0.1.33:
-  version "0.1.33"
-  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.33.tgz#006af3504400daf9aa7289e4e2b30becd79e6dd3"
-  integrity sha512-X3O8nwkAG0jH5yyBwLDm/GtmOU0h8zcjvlIAz4OtFtxETPkPAr9kO7PeK4lTHzeR6X1STq+ptjqjitLqeEDQiw==
+vfluentdesign@^0.1.64:
+  version "0.1.64"
+  resolved "https://registry.yarnpkg.com/vfluentdesign/-/vfluentdesign-0.1.64.tgz#893808ce46150bbca31b7f54da9b7c704172ae94"
+  integrity sha512-iy1Ra93gZE5xNgWVJq9CGf7Yqc85uVxRwaZrXLDL9GxMAtx0wEqFCujyiPC2AvL7KT73bgyCd9kQcms37ha6Xw==
   dependencies:
     core-js "^3.4.3"
     fluent-reveal-effect "^1.1.1"

@@ -41,7 +41,7 @@
         "node-sass": "^4.14.1",
         "npm-check": "^5.9.2",
         "sass-loader": "^8.0.2",
-        "vfluentdesign": "^0.1.33",
+        "vfluentdesign": "^0.1.64",
         "vue": "^2.6.11",
         "vue-axios": "^3.2.4",
         "vue-router": "^3.4.9",

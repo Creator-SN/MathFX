@@ -21,8 +21,10 @@ A pure open source and cross platforms Math Formulates OCR tool based on the Ele
 
 ## 🎈 Platform
 
-- ✔ Win 10 [Supported]
-- ✔ Mac [Supported]
+- ✔ Windows 11 [Supported]
+- ✔ Windows 10 [Supported]
+- ✔ Mac(AMD64) [Supported]
+
 
 ## ✨ Installation
 

@@ -255,13 +255,13 @@ export default {
                 let listener = (_, data) => {
                     // Remove Listener
                     ipcRenderer.removeListener("getCaptureData", listener);
-                    if (!data) {
+                    if (typeof data == "string") {
+                        resolve(data);
+                    } else {
                         this.$barWarning(
                             this.local("No screenshot is obtained")
                         );
                         reject(-1);
-                    } else {
-                        resolve(data);
                     }
                 };
                 ipcRenderer.on("getCaptureData", listener);
@@ -441,7 +441,6 @@ export default {
                         this.one_times_lock = false;
                     });
             } catch (e) {
-                console.log(e);
                 this.one_times_lock = false;
             }
         },
@@ -545,7 +544,6 @@ export default {
                         this.one_times_lock = false;
                     });
             } catch (e) {
-                console.log(e);
                 this.one_times_lock = false;
             }
         },
@@ -647,7 +645,6 @@ export default {
                             });
                         }
                     } catch (e) {
-                        console.log(e);
                     } finally {
                         this.one_times_lock = false;
                     }
@@ -670,7 +667,6 @@ export default {
                 //         console.log(response);
                 //     });
             } catch (e) {
-                console.log(e);
                 this.one_times_lock = false;
             }
         },

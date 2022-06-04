@@ -93,7 +93,6 @@ jobs:
           mv ./dist_electron/MathFX-$v.dmg ./MathFX-$v.dmg
           mv ./dist_electron/MathFX-$v.dmg.blockmap ./MathFX-$v.dmg.blockmap
           mv ./dist_electron/MathFX-$v-mac.zip ./MathFX-$v-mac.zip
-          mv ./dist_electron/MathFX-$v-mac.zip.blockmap ./MathFX-$v-mac.zip.blockmap
           mv ./dist_electron/latest-mac.yml ./latest-mac.yml
       - name: Upload Prerelease
         uses: ncipollo/release-action@v1

@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Release
+name: Release ✈
 
 # Controls when the action will run.
 on:
@@ -15,23 +15,24 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  window:
     # The type of runner that the job will run on
     runs-on: windows-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Uses NodeJs Environment
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
+          cache: "yarn"
 
       - name: install dependencies
-        run: yarn
+        run: yarn install --frozen-lockfile
 
       - name: build win x64
         run: yarn electron:build
@@ -40,12 +41,73 @@ jobs:
         id: tag
         uses: dawidd6/action-get-tag@v1
 
-      - name: Archive Release
-        run: powershell Compress-Archive -Path ./dist_electron/ -DestinationPath win_x64_MathFX_${{steps.tag.outputs.tag}}.zip
+      - name: Rename
+        run: |
+          $v="${{steps.tag.outputs.tag}}".Substring(1)
+          mv "./dist_electron/MathFX Setup $v.exe" "MathFX-Setup-$v.exe"
+          mv "./dist_electron/MathFX Setup $v.exe.blockmap" "MathFX-Setup-$v.exe.blockmap"
+          mv "./dist_electron/latest.yml" "latest.yml"
+      - name: Upload Prerelease
+        uses: ncipollo/release-action@v1
+        if: ${{ contains(steps.tag.outputs.tag,'beta') }}
+        with:
+          allowUpdates: true
+          artifacts: "*.exe,*.blockmap,*.yml"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
 
       - name: Upload Release
         uses: ncipollo/release-action@v1
+        if: ${{ !contains(steps.tag.outputs.tag,'beta') }}
         with:
           allowUpdates: true
-          artifacts: "win_x64_MathFX_${{steps.tag.outputs.tag}}.zip"
+          artifacts: "*.exe,*.blockmap,*.yml"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Uses NodeJs Environment
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+          cache: "yarn"
+
+      - name: install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: build macos x64
+        run: yarn electron:build
+
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+
+      - name: Rename
+        run: |
+          v=${{steps.tag.outputs.tag}}
+          v=${v:1}
+          mv ./dist_electron/MathFX-$v.dmg ./MathFX-$v.dmg
+          mv ./dist_electron/MathFX-$v.dmg.blockmap ./MathFX-$v.dmg.blockmap
+          mv ./dist_electron/MathFX-$v-mac.zip ./MathFX-$v-mac.zip
+          mv ./dist_electron/MathFX-$v-mac.zip.blockmap ./MathFX-$v-mac.zip.blockmap
+          mv ./dist_electron/latest-mac.yml ./latest-mac.yml
+      - name: Upload Prerelease
+        uses: ncipollo/release-action@v1
+        if: ${{ contains(steps.tag.outputs.tag,'beta') }}
+        with:
+          allowUpdates: true
+          artifacts: "*.dmg,*.blockmap,*.yml"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+
+      - name: Upload Release
+        uses: ncipollo/release-action@v1
+        if: ${{ !contains(steps.tag.outputs.tag,'beta') }}
+        with:
+          allowUpdates: true
+          artifacts: "*.dmg,*.blockmap,*.yml"
           token: ${{ secrets.GITHUB_TOKEN }}

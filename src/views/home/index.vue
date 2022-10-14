@@ -7,7 +7,10 @@
                 :value="h"
                 ref="displayer"
             ></displayer>
-            <div v-show="!h" class="empty-bg">
+            <div
+                v-show="!h"
+                class="empty-bg"
+            >
                 <i class="ms-Icon ms-Icon--RectangularClipping"></i>
                 <p>Start For the First Scan.</p>
             </div>
@@ -99,6 +102,7 @@
         >
             <template v-slot:container>
                 <list
+                    v-if="show.panel"
                     :theme="theme"
                     :cur_h="cur_h"
                     :history="history"
@@ -106,7 +110,10 @@
                 ></list>
             </template>
         </fv-Panel>
-        <div v-show="false" ref="placeholder">{{ cur_latex }}</div>
+        <div
+            v-show="false"
+            ref="placeholder"
+        >{{ cur_latex }}</div>
     </div>
 </template>
 

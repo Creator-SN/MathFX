@@ -40,6 +40,17 @@ module.exports = {
         win: {
           icon: "./logo.ico"
         },
+        mac: {
+          icon: './logo.icns',
+          target: {
+            target: 'dmg',
+            arch: [
+              'x64',
+              'arm64',
+              'universal'
+            ]
+          }
+        },
         nsis: {
           oneClick: false,
           allowToChangeInstallationDirectory: true,

@@ -31,6 +31,8 @@ module.exports = {
       nodeIntegration: true,
       // https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/881
       builderOptions: {
+        productName: "MathFX",
+        appId: "com.creatorsn.mathfx",
         extraResources: [{
           from: 'node_modules/electron-vue-screen-capture/dist_electron/bundled/',
           to: './screen-capture'

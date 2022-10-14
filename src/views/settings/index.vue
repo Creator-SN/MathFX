@@ -33,13 +33,10 @@
                     :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''"
                     @choose-item="chooseLanguage"
                 >
-                    <template v-slot:default="x">
-                        <p>{{x.item.text}}</p>
-                    </template>
-            </fv-Combobox>
+                </fv-Combobox>
+            </div>
         </div>
     </div>
-</div>
 </template>
 
 <script>

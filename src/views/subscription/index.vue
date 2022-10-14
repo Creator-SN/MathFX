@@ -34,7 +34,6 @@
                             :revealBorder="true"
                             :isBoxShadow="true"
                             style="margin-left: 15px"
-                            type="password"
                         ></fv-text-box>
                     </div>
                 </div>
@@ -52,7 +51,7 @@
                             class="ms-Icon"
                             :class="[
                                 `ms-Icon--${
-                                    s.revise ? 'CheckMark' : 'EditStyle'
+                                    s.revise ? 'CheckMark' : 'Edit'
                                 }`,
                             ]"
                         ></i>
@@ -187,7 +186,7 @@ export default {
                 }
 
                 .s-control-block {
-                    background: rgba(120, 120, 120, 1);
+                    background: rgba(0, 0, 0, 1);
                 }
             }
         }

@@ -18,6 +18,7 @@
                     :theme="theme"
                     fontSize="12"
                     borderRadius="50"
+                    borderWidth="2"
                     style="height: 20px"
                     @click="show.src = !show.src"
                 >
@@ -40,6 +41,7 @@
                     :theme="theme"
                     fontSize="16"
                     borderRadius="50"
+                    borderWidth="2"
                     style="width: 40px; height: 40px"
                     title="Copy Microsoft© Word"
                     @click="copy_text(value.mathml)"
@@ -51,6 +53,7 @@
                 <fv-button
                     :theme="theme"
                     borderRadius="50"
+                    borderWidth="2"
                     icon="Shapes"
                     style="width: 80px; height: 40px"
                     title="Copy SVG"
@@ -61,6 +64,7 @@
                 <fv-button
                     :theme="theme"
                     borderRadius="50"
+                    borderWidth="2"
                     icon="PictureFill"
                     style="width: 80px; height: 40px; margin-left: 5px"
                     title="Copy PNG"

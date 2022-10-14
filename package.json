@@ -39,7 +39,7 @@
         "lowdb": "^1.0.0",
         "npm-check": "^5.9.2",
         "sass-loader": "^8.0.2",
-        "vfluentdesign": "^0.1.64",
+        "vfluentdesign": "^0.4.6",
         "vue": "^2.6.11",
         "vue-axios": "^3.2.4",
         "vue-router": "^3.4.9",

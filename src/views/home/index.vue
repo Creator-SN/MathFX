@@ -28,6 +28,7 @@
                     foreground="rgba(242, 242, 242, 0.8)"
                     background="rgba(27, 96, 147, 0.3)"
                     borderRadius="50"
+                    borderWidth="2"
                     style="width: 30px; height: 30px; margin: 0px 8px"
                     @click="move_prev"
                 >
@@ -39,6 +40,7 @@
                     background="rgba(27, 96, 147, 0.3)"
                     fontSize="20"
                     borderRadius="50"
+                    borderWidth="2"
                     :disabled="one_times_lock || !mathjax_ready"
                     title="Scan New Formulate (Alt + Shift/Cmd + X)"
                     style="width: 50px; height: 50px"
@@ -66,6 +68,7 @@
                     foreground="rgba(242, 242, 242, 0.8)"
                     background="rgba(27, 96, 147, 0.3)"
                     borderRadius="50"
+                    borderWidth="2"
                     style="width: 30px; height: 30px; margin: 0px 8px"
                     @click="move_next"
                 >
@@ -78,6 +81,7 @@
                     foreground="rgba(242, 242, 242, 0.8)"
                     background="rgba(27, 96, 147, 0.3)"
                     borderRadius="50"
+                    borderWidth="2"
                     style="width: 40px; height: 40px; margin: 0px 8px"
                     @click="show.panel = !show.panel"
                 >

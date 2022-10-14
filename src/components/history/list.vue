@@ -1,37 +1,62 @@
 <template>
-<transition-group name="h-list" tag="div" class="scroll-view" :class="[{dark: theme === 'dark'}]">
-    <div class="s-history-block" :class="[{ choosen: cur_h === h.guid }]" v-for="(h, index) in history" :key="`s-history-block: ${index}`" @click="reviseH(h)">
-        <fv-img class="bg-top" :src="h.src"></fv-img>
-        <fv-img class="bg-bottom" :src="h.svg"></fv-img>
-        <div class="s-control-block">
-            <fv-button :theme="theme"
-                fontSize="16"
-                borderRadius="50"
-                style="width: 40px; height: 40px;"
-                :title="local('Quick Copy')"
-                @click="copy_text($event, h.latex_1)">
-                <i class="ms-Icon ms-Icon--Copy"></i>
-            </fv-button>
-            <fv-button :theme="theme"
-                fontSize="16"
-                borderRadius="50"
-                style="width: 40px; height: 40px;"
-                title="Copy Microsoft© Word"
-                @click="copy_text($event, h.mathml)">
-                <i class="ms-Icon ms-Icon--WordLogo"></i>
-            </fv-button>
-            <fv-button :theme="'dark'"
-                fontSize="16"
-                :background="'rgba(173, 38, 45, 0.8)'"
-                borderRadius="50"
-                style="width: 40px; height: 40px;"
-                :title="local('Delete')"
-                @click="remove($event, h.guid)">
-                <i class="ms-Icon ms-Icon--Delete"></i>
-            </fv-button>
-        </div>
-    </div>
-</transition-group>
+    <fv-InfiniteScrollView
+        v-model="history"
+        :batch-size="10"
+        class="scroll-view"
+        :class="[{dark: theme === 'dark'}]"
+    >
+        <template v-slot:default="x">
+            <div
+                class="s-history-block"
+                :class="[{ choosen: cur_h === h.guid }]"
+                v-for="(h, index) in x.dynamicValue"
+                :key="`s-history-block: ${index}`"
+                @click="reviseH(h)"
+            >
+                <fv-img
+                    class="bg-top"
+                    :src="h.src"
+                ></fv-img>
+                <fv-img
+                    class="bg-bottom"
+                    :src="h.svg"
+                ></fv-img>
+                <div class="s-control-block">
+                    <fv-button
+                        :theme="theme"
+                        fontSize="16"
+                        borderRadius="50"
+                        style="width: 40px; height: 40px;"
+                        :title="local('Quick Copy')"
+                        @click="copy_text($event, h.latex_1)"
+                    >
+                        <i class="ms-Icon ms-Icon--Copy"></i>
+                    </fv-button>
+                    <fv-button
+                        :theme="theme"
+                        fontSize="16"
+                        borderRadius="50"
+                        style="width: 40px; height: 40px;"
+                        title="Copy Microsoft© Word"
+                        @click="copy_text($event, h.mathml)"
+                    >
+                        <i class="ms-Icon ms-Icon--WordLogo"></i>
+                    </fv-button>
+                    <fv-button
+                        :theme="'dark'"
+                        fontSize="16"
+                        :background="'rgba(173, 38, 45, 0.8)'"
+                        borderRadius="50"
+                        style="width: 40px; height: 40px;"
+                        :title="local('Delete')"
+                        @click="remove($event, h.guid)"
+                    >
+                        <i class="ms-Icon ms-Icon--Delete"></i>
+                    </fv-button>
+                </div>
+            </div>
+        </template>
+    </fv-InfiniteScrollView>
 </template>
 
 <script>
@@ -41,50 +66,47 @@ import { clipboard } from "electron";
 export default {
     props: {
         theme: {
-            default: 'light'
+            default: "light",
         },
         history: {
-            default: () => []
+            default: () => [],
         },
         cur_h: {
-            default: 0
-        }
+            default: 0,
+        },
     },
     computed: {
-        ...mapGetters([
-            'local'
-        ])
+        ...mapGetters(["local"]),
     },
     methods: {
         ...mapMutations({
             removeHistory: "removeHistory",
-            reviseCurH: "reviseCurH"
+            reviseCurH: "reviseCurH",
         }),
         copy_text($event, val) {
             $event.stopPropagation();
             clipboard.writeText(val);
         },
-        remove ($event, guid) {
+        remove($event, guid) {
             $event.stopPropagation();
             this.removeHistory({
                 v: this,
-                guid: guid
+                guid: guid,
             });
         },
-        reviseH (h) {
+        reviseH(h) {
             this.reviseCurH({
                 v: this,
-                cur_h: h.guid
+                cur_h: h.guid,
             });
             this.$emit("item-click", h);
-        }
-    }
-}
+        },
+    },
+};
 </script>
 
 <style lang="scss">
-.scroll-view
-{
+.scroll-view {
     position: relative;
     width: 100%;
     height: 100%;
@@ -97,27 +119,22 @@ export default {
     overflow: auto;
     transition: all 0.2s;
 
-    &.dark
-    {
-        .s-history-block
-        {
+    &.dark {
+        .s-history-block {
             background: rgba(56, 56, 63, 1);
             color: whitesmoke;
 
-            .s-control-block
-            {
+            .s-control-block {
                 background: rgba(56, 56, 63, 0.8);
             }
 
-            img
-            {
+            img {
                 filter: invert(1);
             }
         }
     }
 
-    .s-history-block
-    {
+    .s-history-block {
         position: relative;
         width: calc(100% - 30px);
         min-height: 150px;
@@ -132,23 +149,19 @@ export default {
         box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
         transition: all 0.3s;
 
-        &:hover
-        {
+        &:hover {
             border: rgba(6, 107, 150, 0.3) solid 2px;
 
-            .s-control-block
-            {
+            .s-control-block {
                 display: flex;
             }
         }
 
-        &.choosen
-        {
+        &.choosen {
             border: rgba(6, 107, 150, 0.6) solid 2px;
         }
 
-        .bg-top
-        {
+        .bg-top {
             position: absolute;
             left: 0px;
             top: 0px;
@@ -156,8 +169,7 @@ export default {
             height: 80%;
         }
 
-        .bg-bottom
-        {
+        .bg-bottom {
             position: absolute;
             left: 0px;
             bottom: 0px;
@@ -165,8 +177,7 @@ export default {
             height: 20%;
         }
 
-        .s-control-block
-        {
+        .s-control-block {
             position: relative;
             width: 100%;
             height: 100%;
@@ -181,40 +192,33 @@ export default {
         }
     }
 
-    .h-list-move
-    {
+    .h-list-move {
         transition: all 0.2s;
         -webkit-transition: all 0.2s;
     }
 
-    .h-list-enter
-    {
+    .h-list-enter {
         opacity: 0;
         transform: translateY(-75px);
     }
-    .h-list-enter-to
-    {
+    .h-list-enter-to {
         opacity: 1;
         transform: translateY(0px);
     }
-    .h-list-enter-active
-    {
+    .h-list-enter-active {
         transition: all 0.2s;
         -webkit-transition: all 0.2s;
     }
-    
-    .h-list-leave
-    {
+
+    .h-list-leave {
         opacity: 1;
         transform: translateY(0px);
     }
-    .h-list-leave-to
-    {
+    .h-list-leave-to {
         opacity: 0;
         transform: translateY(75px);
     }
-    .h-list-leave-active
-    {
+    .h-list-leave-active {
         transition: all 0.2s;
         -webkit-transition: all 0.2s;
     }

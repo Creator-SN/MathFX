@@ -9,6 +9,7 @@
                 :theme="theme"
                 :value="h"
                 ref="displayer"
+                @add-manually="get_manually"
             ></displayer>
             <div
                 v-show="!h"
@@ -195,6 +196,16 @@ export default {
     },
     methods: {
         op() {
+            if (!this.cur_sub) {
+                this.$barWarning(
+                    `${this.local("No subscriptions were selected")}`,
+                    {
+                        status: "warning",
+                        theme: this.theme,
+                    }
+                );
+                return 0;
+            }
             if (this.mathjax_ready) {
                 if (!this.isSubscriptionReady()) {
                     this.$barWarning(
@@ -203,6 +214,7 @@ export default {
                         }${this.local("Information not ready")}`,
                         {
                             status: "warning",
+                            theme: this.theme,
                         }
                     );
                     return 0;
@@ -214,6 +226,7 @@ export default {
                         `${this.local("No subscriptions were selected")}`,
                         {
                             status: "warning",
+                            theme: this.theme,
                         }
                     );
             } else {
@@ -221,6 +234,7 @@ export default {
                     `${this.local("The formula renderer has not been loaded")}`,
                     {
                         status: "warning",
+                        theme: this.theme,
                     }
                 );
             }
@@ -389,6 +403,7 @@ export default {
             if (this.one_times_lock) {
                 this.$barWarning(`${this.local("Processing")}`, {
                     status: "warning",
+                    theme: this.theme,
                 });
                 return;
             }
@@ -450,6 +465,7 @@ export default {
                     .catch(({ response }) => {
                         this.$barWarning(JSON.stringify(response), {
                             status: "error",
+                            theme: this.theme,
                         });
                         this.one_times_lock = false;
                     });
@@ -461,6 +477,7 @@ export default {
             if (this.one_times_lock) {
                 this.$barWarning(`${this.local("Processing")}`, {
                     status: "warning",
+                    theme: this.theme,
                 });
                 return;
             }
@@ -531,6 +548,7 @@ export default {
                     .catch(({ response }) => {
                         this.$barWarning(JSON.stringify(response), {
                             status: "error",
+                            theme: this.theme,
                         });
                         this.one_times_lock = false;
                     });
@@ -542,6 +560,7 @@ export default {
             if (this.one_times_lock) {
                 this.$barWarning(`${this.local("Processing")}`, {
                     status: "warning",
+                    theme: this.theme,
                 });
                 return;
             }
@@ -561,6 +580,7 @@ export default {
                         .catch((data) => {
                             this.$barWarning(JSON.stringify(data), {
                                 status: "error",
+                                theme: this.theme,
                             });
                             reject(JSON.stringify(data));
                         });
@@ -634,6 +654,7 @@ export default {
                     .catch(({ response }) => {
                         this.$barWarning(JSON.stringify(response), {
                             status: "error",
+                            theme: this.theme,
                         });
                         this.one_times_lock = false;
                     });
@@ -645,6 +666,7 @@ export default {
             if (this.one_times_lock) {
                 this.$barWarning(`${this.local("Processing")}`, {
                     status: "warning",
+                    theme: this.theme,
                 });
                 return;
             }
@@ -760,6 +782,61 @@ export default {
                 //     .catch(({ response }) => {
                 //         console.log(response);
                 //     });
+            } catch (e) {
+                this.one_times_lock = false;
+            }
+        },
+        async get_manually(text) {
+            if (this.one_times_lock) {
+                this.$barWarning(`${this.local("Processing")}`, {
+                    status: "warning",
+                    theme: this.theme,
+                });
+                return;
+            }
+            this.one_times_lock = true;
+            if (
+                text.slice(0, 2) === "$$" &&
+                text.slice(text.length - 2, text.length) === "$$"
+            ) {
+                text = text.slice(2, text.length - 2);
+            } else if (text[0] === "$" && text[text.length - 1] === "$") {
+                text = text.slice(1, text.length - 1);
+            } else if (
+                text.startsWith("\\begin{equation}") &&
+                text.endsWith("\\end{equation}")
+            ) {
+                text = text.slice(16, text.length - 14);
+            }
+            try {
+                let latex_bare = `${text}`;
+                let latex_1 = `$${text}$`;
+                let latex_2 = `$$\n${text}\n$$`;
+                let latex_3 = `\\begin{equation}\n${text}\n\\end{equation}`;
+                this.cur_latex = `$$${text}$$`;
+                await this.render_mathpix();
+                let mathml = await this.return_mathml();
+                let imgs = await this.return_svg();
+                let h = {
+                    guid: this.$SUtility.Guid(),
+                    latex_bare,
+                    latex_1,
+                    latex_2,
+                    latex_3,
+                    mathml,
+                    ...imgs,
+                    src: imgs.png,
+                    date: this.$SDate.DateToString(new Date()),
+                };
+                this.$store.commit("addHistory", {
+                    v: this,
+                    h,
+                });
+                this.$store.commit("reviseCurH", {
+                    v: this,
+                    cur_h: h.guid,
+                });
+                this.one_times_lock = false;
             } catch (e) {
                 this.one_times_lock = false;
             }

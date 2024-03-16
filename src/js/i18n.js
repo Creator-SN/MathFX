@@ -110,5 +110,13 @@ export default {
     'Download Success': {
         en: "Download Success",
         cn: "下载成功..."
+    },
+    'Add formula manually': {
+        en: "Add formula manually",
+        cn: "手动添加公式"
+    },
+    '(Press Enter to add)': {
+        en: "(Press Enter to add)",
+        cn: "(按Enter添加)"
     }
 }

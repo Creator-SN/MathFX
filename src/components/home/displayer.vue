@@ -119,6 +119,29 @@
                     @click="copy_text(item)"
                 ><i class="ms-Icon ms-Icon--Copy"></i></fv-button>
             </div>
+            <div class="item-block">
+                <fv-text-box
+                    v-model="manuallyText"
+                    :placeholder="local('Add formula manually') + local('(Press Enter to add)')"
+                    :theme="theme"
+                    :background="theme === 'dark' ? 'rgba(12, 12, 12, 1)': 'rgba(255, 255, 245, 1)'"
+                    :revealBorder="true"
+                    border-color="rgba(200, 200, 200, 0.1)"
+                    :focus-border-color="theme === 'dark' ? 'rgba(118, 185, 237, 0.5)': 'rgba(0, 90, 158, 0.5)'"
+                    underline
+                    class="item-input"
+                    @keydown.enter="addManually"
+                ></fv-text-box>
+                <fv-button
+                    :theme="theme"
+                    :background="theme === 'dark' ? 'rgba(20, 20, 20, 1)': ''"
+                    borderRadius="12"
+                    :disabled="!manuallyText"
+                    :isBoxShadow="true"
+                    class="item-button"
+                    @click="addManually"
+                ><i class="ms-Icon ms-Icon--Add"></i></fv-button>
+            </div>
         </div>
     </div>
 </template>
@@ -140,6 +163,7 @@ export default {
     },
     data() {
         return {
+            manuallyText: "",
             show: {
                 src: false,
             },
@@ -185,6 +209,7 @@ export default {
             else {
                 this.$barWarning(`${this.local("Empty image content")}`, {
                     status: "error",
+                    theme: this.theme,
                 });
             }
         },
@@ -212,6 +237,11 @@ export default {
             let bb = new Blob([ab], { type: mimeString });
             console.log(base64, bb);
             return bb;
+        },
+        addManually() {
+            if (!this.manuallyText) return;
+            this.$emit("add-manually", this.manuallyText);
+            this.manuallyText = "";
         },
     },
 };

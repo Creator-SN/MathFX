@@ -1,5 +1,8 @@
 <template>
-    <div class="main-container">
+    <div
+        class="main-container"
+        :class="[{dark: theme==='dark'}]"
+    >
         <div class="hud-container">
             <displayer
                 v-show="h"
@@ -19,11 +22,17 @@
             <div class="left-bar">
                 <p
                     class="ms-Icon ms-Icon--LightningBolt"
-                    style="font-size: 12px"
+                    style="min-width: 12px; font-size: 12px"
                 ></p>
-                <p>{{ h === undefined ? 0 : history.indexOf(h) + 1 }}</p>
-                <p>/</p>
-                <p>{{ history.length }}</p>
+                <p
+                    style="font-size: 12px;"
+                    :title="h === undefined ? 0 : history.indexOf(h) + 1"
+                >{{ h === undefined ? 0 : history.indexOf(h) + 1 }}</p>
+                <p style="font-size: 8px;">/</p>
+                <p
+                    style="font-size: 12px;"
+                    :title="history.length"
+                >{{ history.length }}</p>
             </div>
             <div class="mid-bar">
                 <fv-button
@@ -135,6 +144,7 @@ export default {
     data() {
         return {
             ops: {
+                sLatexOCR: this.get_sLatex,
                 mathpix: this.get_mathpix,
                 xunfei: this.get_xunfei,
                 baidu: this.get_baidu,
@@ -174,6 +184,7 @@ export default {
             return this.history.find((item) => item.guid === this.cur_h);
         },
         getFromData() {
+            // obtain the value from the subscription data
             return (key) => {
                 return this.s.data.find((item) => item.key === key).value;
             };
@@ -373,6 +384,78 @@ export default {
             }
             //  Pass the MathML to the user's callback
             this.mathjax.Callback(callback)(mml);
+        },
+        async get_sLatex() {
+            if (this.one_times_lock) {
+                this.$barWarning(`${this.local("Processing")}`, {
+                    status: "warning",
+                });
+                return;
+            }
+            this.one_times_lock = true;
+            try {
+                this.origin = await this.get_clip();
+                // base64 to blob
+                let blob = await new Promise((resolve, reject) => {
+                    let byteString = atob(this.origin.split(",")[1]);
+                    let ab = new ArrayBuffer(byteString.length);
+                    let ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    let blob = new Blob([ab], {
+                        type: "image/png",
+                    });
+                    resolve(blob);
+                });
+
+                let form = new FormData();
+                form.append("img", blob);
+                this.axios
+                    .post(this.getFromData("url"), form, {
+                        headers: {
+                            "api-key": this.getFromData("api_key"),
+                        },
+                    })
+                    .then(async ({ data }) => {
+                        let latex_bare = `${data.data[0]}`;
+                        let latex_1 = `$${data.data[0]}$`;
+                        let latex_2 = `$$\n${data.data[0]}\n$$`;
+                        let latex_3 = `\\begin{equation}\n${data.data[0]}\n\\end{equation}`;
+                        this.cur_latex = `$$${data.data[0]}$$`;
+                        await this.render_mathpix();
+                        let mathml = await this.return_mathml();
+                        let imgs = await this.return_svg();
+                        let h = {
+                            guid: this.$SUtility.Guid(),
+                            latex_bare,
+                            latex_1,
+                            latex_2,
+                            latex_3,
+                            mathml,
+                            ...imgs,
+                            src: this.origin,
+                            date: this.$SDate.DateToString(new Date()),
+                        };
+                        this.$store.commit("addHistory", {
+                            v: this,
+                            h,
+                        });
+                        this.$store.commit("reviseCurH", {
+                            v: this,
+                            cur_h: h.guid,
+                        });
+                        this.one_times_lock = false;
+                    })
+                    .catch(({ response }) => {
+                        this.$barWarning(JSON.stringify(response), {
+                            status: "error",
+                        });
+                        this.one_times_lock = false;
+                    });
+            } catch (e) {
+                this.one_times_lock = false;
+            }
         },
         async get_mathpix() {
             if (this.one_times_lock) {
@@ -690,10 +773,30 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
+    background: linear-gradient(
+        160deg,
+        rgba(157, 198, 228, 0.6),
+        rgba(157, 198, 228, 0.1),
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 1)
+    );
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transition: all 0.3s;
+
+    &.dark {
+        background: linear-gradient(
+            150deg,
+            rgba(17, 34, 46, 1),
+            rgba(0, 0, 0, 1),
+            rgba(0, 0, 0, 1),
+            rgba(0, 0, 0, 1)
+        );
+    }
 
     .hud-container {
         position: relative;
@@ -727,10 +830,13 @@ export default {
 
     .control-container {
         position: relative;
-        width: 100%;
-        min-height: 120px;
-        height: 120px;
+        width: calc(100% - 10px);
+        min-height: 80px;
+        height: 80px;
+        margin-left: 5px;
+        margin-bottom: 3px;
         background: rgba(27, 96, 147, 0.8);
+        border-radius: 12px;
 
         display: flex;
         justify-content: space-between;
@@ -740,26 +846,30 @@ export default {
 
         .left-bar {
             position: relative;
-            width: auto;
+            width: 33%;
             height: 100%;
             padding: 0px 15px;
             box-sizing: border-box;
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             user-select: none;
+            overflow: hidden;
             cursor: default;
 
             p {
                 margin: 0px 3px;
                 color: rgba(242, 242, 242, 0.8);
+                text-overflow: ellipsis;
+                overflow: hidden;
             }
         }
 
         .mid-bar {
             position: relative;
-            width: 50%;
+            width: 33%;
             height: 100%;
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -767,12 +877,12 @@ export default {
 
         .right-bar {
             position: relative;
-            width: auto;
+            width: 33%;
             height: 100%;
             padding: 0px 15px;
             box-sizing: border-box;
             display: flex;
-            justify-content: center;
+            justify-content: flex-end;
             align-items: center;
             user-select: none;
             cursor: default;

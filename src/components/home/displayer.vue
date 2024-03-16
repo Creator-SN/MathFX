@@ -1,9 +1,10 @@
 <template>
-    <div class="displayer-container" :class="[theme]">
+    <div
+        class="displayer-container"
+        :class="[theme]"
+    >
         <div class="img-block">
-            <transition
-                :name="show.src ? 'move-top-to-bottom' : 'move-bottom-to-top'"
-            >
+            <transition :name="show.src ? 'move-top-to-bottom' : 'move-bottom-to-top'">
                 <fv-img
                     v-show="show.src"
                     class="ori-img-box"
@@ -11,14 +12,18 @@
                 ></fv-img>
             </transition>
             <div class="svg-img-block">
-                <fv-img class="img-box" :src="value.svg"></fv-img>
+                <fv-img
+                    class="img-box"
+                    :src="value.svg"
+                ></fv-img>
             </div>
             <div class="s-1">
                 <fv-button
                     :theme="theme"
                     fontSize="12"
+                    :background="theme === 'dark' ? 'rgba(20, 20, 20, 1)': ''"
                     borderRadius="50"
-                    borderWidth="2"
+                    :is-box-shadow="true"
                     style="height: 20px"
                     @click="show.src = !show.src"
                 >
@@ -32,14 +37,26 @@
                     ></i>
                 </fv-button>
             </div>
-            <img v-show="false" :src="value.svg" alt="" ref="svg" />
-            <img v-show="false" :src="value.png" alt="" ref="png" />
+            <img
+                v-show="false"
+                :src="value.svg"
+                alt=""
+                ref="svg"
+            />
+            <img
+                v-show="false"
+                :src="value.png"
+                alt=""
+                ref="png"
+            />
         </div>
         <div class="op-box">
             <div class="left-block">
                 <fv-button
                     :theme="theme"
                     fontSize="16"
+                    foreground="white"
+                    background="rgba(27, 96, 147, 1)"
                     borderRadius="50"
                     borderWidth="2"
                     style="width: 40px; height: 40px"
@@ -74,7 +91,10 @@
                 </fv-button>
             </div>
         </div>
-        <div class="math-box" v-if="value.latex_bare">
+        <div
+            class="math-box"
+            v-if="value.latex_bare"
+        >
             <div
                 class="item-block"
                 v-for="(item, index) in fomulate"
@@ -82,25 +102,22 @@
             >
                 <fv-text-box
                     :theme="theme"
-                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': ''"
-                    borderRadius="3"
-                    :borderWidth="2"
+                    :background="theme === 'dark' ? 'rgba(0, 0, 0, 1)': ''"
+                    borderRadius="12"
                     :revealBorder="true"
-                    :isBoxShadow="true"
                     class="item-input"
                     readonly
                     :value="item"
+                    :title="item"
                 ></fv-text-box>
                 <fv-button
                     :theme="theme"
-                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)': ''"
-                    borderRadius="3"
-                    :borderWidth="2"
+                    :background="theme === 'dark' ? 'rgba(12, 12, 12, 1)': ''"
+                    borderRadius="12"
                     :isBoxShadow="true"
                     class="item-button"
                     @click="copy_text(item)"
-                    ><i class="ms-Icon ms-Icon--Copy"></i
-                ></fv-button>
+                ><i class="ms-Icon ms-Icon--Copy"></i></fv-button>
             </div>
         </div>
     </div>
@@ -131,9 +148,7 @@ export default {
     mounted() {},
     beforeDestroy() {},
     computed: {
-        ...mapGetters([
-            'local'
-        ]),
+        ...mapGetters(["local"]),
         fomulate() {
             return [
                 this.value.latex_bare,
@@ -154,7 +169,7 @@ export default {
             cas.height = el.height;
             ctx.drawImage(el, 0, 0);
             let imgData = ctx.getImageData(0, 0, el.width, el.height);
-            let data = imgData.data
+            let data = imgData.data;
             for (let i = 0; i < data.length; i += 4) {
                 if (data[i + 3] < 255) {
                     data[i] = 255 - data[i];
@@ -163,12 +178,12 @@ export default {
                     data[i + 3] = 255 - data[i + 3];
                 }
             }
-            ctx.putImageData(imgData,0,0)
+            ctx.putImageData(imgData, 0, 0);
             let img = nativeImage.createFromDataURL(cas.toDataURL("image/png"));
             img = nativeImage.createFromBuffer(img.toPNG());
             if (!img.isEmpty()) clipboard.writeImage(img);
             else {
-                this.$barWarning(`${this.local('Empty image content')}`, {
+                this.$barWarning(`${this.local("Empty image content")}`, {
                     status: "error",
                 });
             }
@@ -207,22 +222,15 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
-    background: whitesmoke;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 
     &.dark {
         color: white;
-        background: rgba(36, 36, 45, 1);
 
-        .img-block
-        {
-            background: rgba(0, 0, 0, 1);
-            box-shadow: 0px 3px 8px rgba(120, 120, 120, 0.1);
-
-            img
-            {
+        .img-block {
+            img {
                 filter: invert(1);
             }
         }
@@ -232,9 +240,8 @@ export default {
         position: relative;
         width: 100%;
         height: auto;
-        background: white;
         overflow: auto;
-        box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.1);
         transition: all 0.3s;
 
         .s-1 {
@@ -297,12 +304,12 @@ export default {
         width: 100%;
         min-height: 230px;
         height: auto;
-        padding: 0px 15px;
+        padding: 15px;
         flex: 1;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
         overflow: auto;
 
@@ -310,19 +317,23 @@ export default {
             position: relative;
             width: 100%;
             min-height: 50px;
-            height: 50px;
+            height: 60px;
             display: flex;
             align-items: center;
 
             .item-input {
                 height: 45px;
                 flex: 1;
+
+                * {
+                    font-family: "Cambria Math", "Times New Roman";
+                }
             }
 
             .item-button {
                 width: 45px;
                 height: 45px;
-                margin-left: 15px;
+                margin-left: 5px;
             }
         }
     }

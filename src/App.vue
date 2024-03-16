@@ -1,6 +1,6 @@
 <template>
     <div id="app" :class="{dark: theme == 'dark'}">
-        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathFX'" :settingTitle="local('Setting')" ref="nav" @item-click="Go($event.url)" @back="$Back()" @setting-click="Go(`/settings`)"></fv-navigation-view>
+        <fv-navigation-view v-model="navigationValue" :theme="theme" class="navigation-view" :options="navigationOptions" :background="navigationViewBackground" expandMode="flyout" fullSizeDisplay="0" :title="'MathFX'" :show-search="false" :settingTitle="local('Setting')" ref="nav" @item-click="Go($event.url)" @back="$Back()" @setting-click="Go(`/settings`)"></fv-navigation-view>
         <div class="addition-container">
             <title-bar class="title-bar" :theme="theme" style="background: transparent;"></title-bar>
             <div class="global-container">
@@ -188,13 +188,24 @@ export default {
 
     &.dark
     {
-        background: rgba(36, 36, 36, 1);
+        background: linear-gradient(
+            150deg,
+            rgba(17, 34, 46, 1),
+            rgba(0, 0, 0, 1),
+            rgba(0, 0, 0, 1),
+            rgba(0, 0, 0, 1)
+        );
     }
 
     .navigation-view
     {
         height: 100%;
         z-index: 11;
+
+        .fv-light-AnimatedIcon
+        {
+            overflow: hidden;
+        }
     }
 
     .addition-container

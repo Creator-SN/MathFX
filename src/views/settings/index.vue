@@ -95,14 +95,29 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
-    background: whitesmoke;
+    background: linear-gradient(
+        160deg,
+        rgba(157, 198, 228, 0.6),
+        rgba(157, 198, 228, 0.1),
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 1),
+        rgba(255, 255, 255, 1)
+    );
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transition: all 0.3s;
 
     &.dark {
-        background: rgba(36, 36, 36, 1);
+        background: linear-gradient(
+            150deg,
+            rgba(17, 34, 46, 1),
+            rgba(0, 0, 0, 1),
+            rgba(0, 0, 0, 1),
+            rgba(0, 0, 0, 1)
+        );
 
         .s-title {
             color: whitesmoke;

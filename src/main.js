@@ -18,6 +18,7 @@ catch {
 import db from '@/js/datastore.js'
 
 import Vue from 'vue'
+import Vuex from 'vuex'
 import App from './App.vue'
 
 import router from "@/router";
@@ -31,7 +32,7 @@ import VueAxios from 'vue-axios'
 
 Vue.use(VueAxios, axios)
 
-Vue.use(VueFluent);
+Vue.use(VueFluent, Vuex);
 
 Vue.config.productionTip = false
 

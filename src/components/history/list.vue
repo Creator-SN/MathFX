@@ -34,7 +34,8 @@
                     </fv-button>
                     <fv-button
                         :theme="theme"
-                        fontSize="16"
+                        foreground="white"
+                        background="rgba(27, 96, 147, 1)"
                         borderRadius="50"
                         style="width: 40px; height: 40px;"
                         title="Copy Microsoft© Word"
@@ -110,11 +111,12 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
-    padding: 0px 15px;
+    padding: 0px 5px;
     box-sizing: border-box;
     grid-template-columns: repeat(auto-fill, minmax(200px, 370px));
     grid-template-rows: repeat(auto-fill, 150px);
-    row-gap: 15px;
+    row-gap: 10px;
+    column-gap: 5px;
     display: grid;
     overflow: auto;
     transition: all 0.2s;
@@ -123,6 +125,14 @@ export default {
         .s-history-block {
             background: rgba(56, 56, 63, 1);
             color: whitesmoke;
+
+            &:hover {
+                border: rgba(118, 185, 237, 0.3) solid 2px;
+            }
+
+            &.choosen {
+                border: rgba(118, 185, 237, 0.6) solid 2px;
+            }
 
             .s-control-block {
                 background: rgba(56, 56, 63, 0.8);
@@ -136,7 +146,7 @@ export default {
 
     .s-history-block {
         position: relative;
-        width: calc(100% - 30px);
+        width: 100%;
         min-height: 150px;
         height: 150px;
         margin-bottom: 15px;
@@ -150,7 +160,7 @@ export default {
         transition: all 0.3s;
 
         &:hover {
-            border: rgba(6, 107, 150, 0.3) solid 2px;
+            border: rgba(0, 90, 158, 0.3) solid 2px;
 
             .s-control-block {
                 display: flex;
@@ -158,7 +168,7 @@ export default {
         }
 
         &.choosen {
-            border: rgba(6, 107, 150, 0.6) solid 2px;
+            border: rgba(0, 90, 158, 0.6) solid 2px;
         }
 
         .bg-top {
@@ -166,7 +176,7 @@ export default {
             left: 0px;
             top: 0px;
             width: 100%;
-            height: 80%;
+            height: 50%;
         }
 
         .bg-bottom {
@@ -174,7 +184,7 @@ export default {
             left: 0px;
             bottom: 0px;
             width: 100%;
-            height: 20%;
+            height: 50%;
         }
 
         .s-control-block {

@@ -2,6 +2,14 @@ export default {
     init_status: true,
     subscriptions: [
         {
+            name: 'sLatexOCR',
+            title: 'sLatex OCR API',
+            data: [
+                { name: 'Url', key: 'url', value: '' },
+                { name: 'API Key', key: 'api_key', value: '' }
+            ]
+        },
+        {
             name: 'mathpix',
             title: 'MathPix API(Recommend)',
             data: [

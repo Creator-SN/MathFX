@@ -11,6 +11,8 @@ const STORE_PATH = APP.getPath('userData') // 获取electron应用的用户目�
 
 const adapter = new FileSync(path.join(STORE_PATH, '/data.json')) // 初始化lowdb读写的json文件名以及存储路径
 
+console.log(STORE_PATH)
+
 const db = Datastore(adapter) // lowdb接管该文件
 
 init_db_file();

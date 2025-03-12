@@ -1,20 +1,5 @@
 import store from "@/store";
 
-try {
-    if (MathJax) {
-        store.commit('readyMathJax', MathJax)
-    } else {
-        document.getElementById("math-script").onload = () => {
-            store.commit('readyMathJax', MathJax)
-        }
-    }
-}
-catch {
-    document.getElementById("math-script").onload = () => {
-        store.commit('readyMathJax', MathJax)
-    }
-}
-
 import db from '@/js/datastore.js'
 
 import Vue from 'vue'

@@ -49,7 +49,6 @@ export default {
     },
     computed:{
         ...mapState({
-            mathjax: state => state.mathjax,
             language: state => state.language,
             theme: (state) => state.theme
         }),

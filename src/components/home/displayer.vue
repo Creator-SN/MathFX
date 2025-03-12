@@ -13,17 +13,18 @@
             </transition>
             <div class="svg-img-block">
                 <fv-img
+                    v-if="svgURL.type=='img'"
                     class="img-box"
-                    :src="value.svg"
+                    :src="svgURL.url"
                 ></fv-img>
+                <span class="svg-box" v-else v-html="svgURL.url"></span>
             </div>
             <div class="s-1">
                 <fv-button
                     :theme="theme"
                     fontSize="12"
-                    :background="theme === 'dark' ? 'rgba(20, 20, 20, 1)': ''"
+                    :background="'transparent'"
                     borderRadius="50"
-                    :is-box-shadow="true"
                     style="height: 20px"
                     @click="show.src = !show.src"
                 >
@@ -181,6 +182,14 @@ export default {
                 this.value.latex_3,
             ];
         },
+        svgURL () {
+            if(!this.value.svg) return {type: 'img', url: ''};
+            if(this.value.svg.startsWith("data:image/svg")) return {type: 'img', url: this.value.svg};
+            else {
+                let svg = this.value.svg;
+                return {type: 'svg', url: this.value.svg};
+            }
+        }
     },
     methods: {
         copy_text(val) {
@@ -263,6 +272,17 @@ export default {
             img {
                 filter: invert(1);
             }
+
+            .svg-img-block
+            {
+                .svg-box
+                {
+                    svg
+                    {
+                        filter: invert(1);
+                    }
+                }
+            }
         }
     }
 
@@ -270,6 +290,7 @@ export default {
         position: relative;
         width: 100%;
         height: auto;
+        flex-shrink: 0;
         overflow: auto;
         box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.1);
         transition: all 0.3s;
@@ -305,6 +326,14 @@ export default {
                 position: relative;
                 width: 300px;
                 height: auto;
+            }
+
+            .svg-box
+            {
+                svg
+                {
+                    overflow: visible;
+                }
             }
         }
     }

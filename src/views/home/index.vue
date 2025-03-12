@@ -54,7 +54,7 @@
                     fontSize="20"
                     borderRadius="50"
                     borderWidth="2"
-                    :disabled="one_times_lock || !mathjax_ready"
+                    :disabled="one_times_lock"
                     title="Scan New Formulate (Alt + Shift/Cmd + X)"
                     style="width: 50px; height: 50px"
                     @click="op"
@@ -121,9 +121,9 @@
             </template>
         </fv-Panel>
         <div
-            v-show="false"
-            ref="placeholder"
-        >{{ cur_latex }}</div>
+            ref="katex_placeholder"
+            style="position: absolute; opacity: 0; z-index: -999;"
+        ></div>
     </div>
 </template>
 
@@ -136,6 +136,9 @@ import list from "@/components/history/list.vue";
 import { mapState, mapGetters } from "vuex";
 import CryptoJS from "crypto-js";
 import request from "request";
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+import { documentToSVG, elementToSVG, inlineResources, formatXML } from 'dom-to-svg'
 
 export default {
     components: {
@@ -164,14 +167,12 @@ export default {
     },
     computed: {
         ...mapState({
-            mathjax: (state) => state.mathjax,
             handlerScan: (state) => state.handlerScan,
             cur_sub: (state) => state.cur_sub,
             cur_h: (state) => state.cur_h,
             history: (state) => state.history,
             subscriptions: (state) => state.subscriptions,
             theme: (state) => state.theme,
-            mathjax_ready: (state) => state.mathjax_ready,
             clip: (state) => state.paste_plugin,
         }),
         ...mapGetters(["local"]),
@@ -206,38 +207,28 @@ export default {
                 );
                 return 0;
             }
-            if (this.mathjax_ready) {
-                if (!this.isSubscriptionReady()) {
-                    this.$barWarning(
-                        `${this.local("Subscription")}${
-                            this.s.title
-                        }${this.local("Information not ready")}`,
-                        {
-                            status: "warning",
-                            theme: this.theme,
-                        }
-                    );
-                    return 0;
-                }
-                if (this.ops[this.cur_sub] !== undefined)
-                    this.ops[this.cur_sub]();
-                else
-                    this.$barWarning(
-                        `${this.local("No subscriptions were selected")}`,
-                        {
-                            status: "warning",
-                            theme: this.theme,
-                        }
-                    );
-            } else {
+            if (!this.isSubscriptionReady()) {
                 this.$barWarning(
-                    `${this.local("The formula renderer has not been loaded")}`,
+                    `${this.local("Subscription")}${
+                        this.s.title
+                    }${this.local("Information not ready")}`,
                     {
                         status: "warning",
                         theme: this.theme,
                     }
                 );
+                return 0;
             }
+            if (this.ops[this.cur_sub] !== undefined)
+                this.ops[this.cur_sub]();
+            else
+                this.$barWarning(
+                    `${this.local("No subscriptions were selected")}`,
+                    {
+                        status: "warning",
+                        theme: this.theme,
+                    }
+                );
         },
         handler_event(to, from) {
             if (to === true) {
@@ -314,90 +305,64 @@ export default {
             return true;
         },
         async render_mathpix() {
+            let katex_placeholder = this.$refs.katex_placeholder;
+            katex.render(this.cur_latex, katex_placeholder, { output: 'html', throwOnError: false });
             return await new Promise((resolve, reject) => {
-                if (this.mathjax) {
-                    // 这步是必须的, 因为在cur_latex修改后, this.$refs.placeholder似乎还没有立即进行值的同步, 需要强制修改为新的内容 //
-                    this.$refs.placeholder.innerText = this.cur_latex;
-                    this.$nextTick(() => {
-                        this.mathjax.Hub.Queue(
-                            [
-                                "Typeset",
-                                this.mathjax.Hub,
-                                this.$refs.placeholder,
-                            ],
-                            () => {
-                                resolve();
-                            }
-                        );
-                    });
-                } else
-                    reject({
-                        response: `${this.local("Initialize Render failed")}`,
-                    });
+                this.$nextTick(() => {
+                    resolve();
+                });
             });
         },
         async return_svg() {
             let result = await new Promise((resolve, reject) => {
-                this.$nextTick(() => {
-                    let svg = this.$refs.placeholder.querySelectorAll("svg")[0];
-                    if (!svg) {
-                        reject({
-                            response: `${this.local("SVG generate failure")}`,
-                        });
-                        return;
-                    }
-                    svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-                    let output = svg.outerHTML;
-                    let image = new Image();
-                    image.src =
-                        "data:image/svg+xml;base64," +
-                        window.btoa(unescape(encodeURIComponent(output)));
+                let katex_placeholder = this.$refs.katex_placeholder;
+                let svg_element = katex_placeholder.querySelector('span');
+                if (!svg_element) {
+                    reject({
+                        response: `${this.local("SVG generate failure")}`,
+                    });
+                    return;
+                }
+                const svgDocument = elementToSVG(svg_element);
+                    // Inline external resources (fonts, images, etc) as data: URIs
+                // await inlineResources(svgDocument.documentElement)
 
-                    image.onload = () => {
-                        let canvas = document.createElement("canvas");
-                        canvas.width = image.width;
-                        canvas.height = image.height;
-                        let context = canvas.getContext("2d");
-                        context.drawImage(image, 0, 0);
-                        let o = canvas.toDataURL("image/png");
-                        resolve({ svg: image.src, png: o });
-                    };
-                });
+                // Get SVG string
+                const svgString = new XMLSerializer().serializeToString(svgDocument)
+                let image = new Image();
+                image.src =
+                    "data:image/svg+xml;base64," +
+                    window.btoa(unescape(encodeURIComponent(svgString)));
+
+                image.onload = () => {
+                    let canvas = document.createElement("canvas");
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    let context = canvas.getContext("2d");
+                    context.font = "12px 'KaTeX_Math'";
+                    context.drawImage(image, 0, 0);
+                    let png = canvas.toDataURL("image/png");
+                    resolve({ svg: svgString, png: png });
+                };
             });
             return result;
         },
-        async return_mathml() {
+        async return_mathml(tex) {            
             return await new Promise((resolve, reject) => {
-                this.mathjax.Hub.Queue(() => {
-                    let jax = this.mathjax.Hub.getAllJax();
-                    for (let i = 0; i < jax.length; i++) {
-                        this.getMathML(jax[i], function (mml) {
-                            resolve(mml);
-                            return;
-                        });
-                    }
+                try
+                {
+                    const mathml = katex.renderToString(tex, {
+                        output: 'mathml' // 指定输出为 MathML
+                    });
+                    const pureMathML = mathml.match(/<math[\s\S]*<\/math>/)[0];
+                    resolve(pureMathML);
+                }
+                catch(e){
                     reject({
                         response: `${this.local("Failed to get MathML")}`,
                     });
-                    return;
-                });
+                }
             });
-        },
-        getMathML(jax, callback) {
-            let mml;
-            try {
-                mml = jax.root.toMathML("");
-            } catch (err) {
-                if (!err.restart) {
-                    throw err;
-                } // an actual error
-                return this.mathjax.Callback.After(
-                    [this.getMathML, jax, callback],
-                    err.restart
-                );
-            }
-            //  Pass the MathML to the user's callback
-            this.mathjax.Callback(callback)(mml);
         },
         async get_sLatex() {
             if (this.one_times_lock) {
@@ -437,9 +402,9 @@ export default {
                         let latex_1 = `$${data.data[0]}$`;
                         let latex_2 = `$$\n${data.data[0]}\n$$`;
                         let latex_3 = `\\begin{equation}\n${data.data[0]}\n\\end{equation}`;
-                        this.cur_latex = `$$${data.data[0]}$$`;
+                        this.cur_latex = data.data[0];
                         await this.render_mathpix();
-                        let mathml = await this.return_mathml();
+                        let mathml = await this.return_mathml(data.data[0]);
                         let imgs = await this.return_svg();
                         let h = {
                             guid: this.$SUtility.Guid(),
@@ -520,9 +485,9 @@ export default {
                         let latex_1 = `$${data.latex_styled}$`;
                         let latex_2 = `$$\n${data.latex_styled}\n$$`;
                         let latex_3 = `\\begin{equation}\n${data.latex_styled}\n\\end{equation}`;
-                        this.cur_latex = `$$${data.latex_styled}$$`;
+                        this.cur_latex = data.latex_styled;
                         await this.render_mathpix();
-                        let mathml = await this.return_mathml();
+                        let mathml = await this.return_mathml(data.latex_styled);
                         let imgs = await this.return_svg();
                         let h = {
                             guid: this.$SUtility.Guid(),
@@ -624,10 +589,10 @@ export default {
                             let latex_1 = `$${r.words}$`;
                             let latex_2 = `$$\n${r.words}\n$$`;
                             let latex_3 = `\\begin{equation}\n${r.words}\n\\end{equation}`;
-                            this.cur_latex = `$$${r.words}$$`;
+                            this.cur_latex = r.words;
 
                             await this.render_mathpix();
-                            let mathml = await this.return_mathml();
+                            let mathml = await this.return_mathml(r.words);
                             let imgs = await this.return_svg();
                             let h = {
                                 guid: this.$SUtility.Guid(),
@@ -736,9 +701,9 @@ export default {
                             let latex_1 = `$${content}$`;
                             let latex_2 = `$$\n${content}\n$$`;
                             let latex_3 = `\\begin{equation}\n${content}\n\\end{equation}`;
-                            this.cur_latex = `$$${content}$$`;
+                            this.cur_latex = content;
                             await this.render_mathpix();
-                            let mathml = await this.return_mathml();
+                            let mathml = await this.return_mathml(content);
                             let imgs = await this.return_svg();
                             let h = {
                                 guid: this.$SUtility.Guid(),
@@ -813,9 +778,9 @@ export default {
                 let latex_1 = `$${text}$`;
                 let latex_2 = `$$\n${text}\n$$`;
                 let latex_3 = `\\begin{equation}\n${text}\n\\end{equation}`;
-                this.cur_latex = `$$${text}$$`;
+                this.cur_latex = text;
                 await this.render_mathpix();
-                let mathml = await this.return_mathml();
+                let mathml = await this.return_mathml(text);
                 let imgs = await this.return_svg();
                 let h = {
                     guid: this.$SUtility.Guid(),

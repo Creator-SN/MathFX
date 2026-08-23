@@ -68,17 +68,45 @@
                 </fv-button>
             </div>
             <div class="right-block">
-                <fv-button
-                    :theme="theme"
-                    borderRadius="50"
-                    borderWidth="2"
-                    icon="Shapes"
-                    style="width: 80px; height: 40px"
-                    title="Copy SVG"
-                    @click="copy_svg($refs.svg)"
+                <div
+                    class="svg-copy-menu"
+                    @mouseenter="show.svgCopyOptions = true"
+                    @mouseleave="show.svgCopyOptions = false"
+                    @click.stop
                 >
-                    SVG
-                </fv-button>
+                    <fv-button
+                        :theme="theme"
+                        borderRadius="50"
+                        borderWidth="2"
+                        icon="Shapes"
+                        style="width: 80px; height: 40px"
+                        title="Copy SVG"
+                    >
+                        SVG
+                    </fv-button>
+                    <transition name="svg-menu">
+                        <div v-if="show.svgCopyOptions" class="svg-copy-options">
+                            <fv-button
+                                :theme="theme"
+                                icon="Shapes"
+                                borderRadius="10"
+                                style="width: 100%;"
+                                @click.stop="copy_svg($refs.svg)"
+                            >
+                                <span>Copy SVG</span>
+                            </fv-button>
+                            <fv-button
+                                :theme="theme"
+                                icon="TextDocument"
+                                borderRadius="10"
+                                style="width: 100%;"
+                                @click.stop="copy_svg_text($refs.svg)"
+                            >
+                                <span>Copy Source</span>
+                            </fv-button>
+                        </div>
+                    </transition>
+                </div>
                 <fv-button
                     :theme="theme"
                     borderRadius="50"
@@ -168,6 +196,7 @@ export default {
             manuallyText: "",
             show: {
                 src: false,
+                svgCopyOptions: false,
             },
         };
     },
@@ -248,13 +277,57 @@ export default {
                 });
             }
         },
+        get_svg_source(el) {
+            let src = this.modelValue.svg || el?.src || "";
+            if (src.startsWith("data:image/svg")) {
+                const [, payload = ""] = src.split(",", 2);
+                const header = src.slice(0, src.indexOf(","));
+                if (/;base64/i.test(header)) {
+                    const bytes = Uint8Array.from(atob(payload), (char) =>
+                        char.charCodeAt(0)
+                    );
+                    src = new TextDecoder().decode(bytes);
+                } else {
+                    src = decodeURIComponent(payload);
+                }
+            }
+            if (src) {
+                try {
+                    const svgDocument = new DOMParser().parseFromString(
+                        src,
+                        "image/svg+xml"
+                    );
+                    const root = svgDocument.documentElement;
+                    const viewBox = (root.getAttribute("viewBox") || "")
+                        .trim()
+                        .split(/[\s,]+/)
+                        .map(Number);
+                    if (viewBox.length === 4 && viewBox.every(Number.isFinite)) {
+                        const extraHeight = 10;
+                        viewBox[3] += extraHeight;
+                        root.setAttribute("viewBox", viewBox.join(" "));
+                        root.setAttribute(
+                            "height",
+                            `${(parseFloat(root.getAttribute("height")) || viewBox[3] - extraHeight) + extraHeight}`
+                        );
+                        root.setAttribute("overflow", "visible");
+                        src = new XMLSerializer().serializeToString(root);
+                    }
+                } catch (_) {
+                    // Keep the original SVG if a legacy history item is malformed.
+                }
+            }
+            return src;
+        },
         copy_svg(el) {
-            let src = el.src.replace(
-                String.raw`data:image/svg+xml;base64,`,
-                ""
-            );
-            src = decodeURIComponent(escape(window.atob(src)));
-            api?.writeText(src);
+            const src = this.get_svg_source(el);
+            if (src) api?.writeSvg?.(src);
+            this.show.svgCopyOptions = false;
+        },
+        copy_svg_text(el) {
+            const src = this.get_svg_source(el);
+            if (src) api?.writeSvgText?.(src);
+            this.show.svgCopyOptions = false;
         },
         base64toblob(base64) {
             let byteString = atob(base64.split(",")[1]);
@@ -381,6 +454,49 @@ export default {
 
         .right-block {
             display: flex;
+
+            .svg-copy-menu {
+                position: relative;
+                display: inline-flex;
+            }
+
+            .svg-copy-options {
+                position: absolute;
+                top: 40px;
+                right: 0;
+                z-index: 30;
+                width: 190px;
+                padding: 8px;
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.98);
+                border: 1px solid rgba(0, 90, 158, 0.18);
+                box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+
+                .fv-button {
+                    width: 100%;
+                    justify-content: flex-start;
+                    padding: 0 12px;
+                }
+            }
+
+            .dark & .svg-copy-options {
+                background: rgba(30, 30, 30, 0.98);
+            }
+
+            .svg-menu-enter-active,
+            .svg-menu-leave-active {
+                transition: opacity 0.16s ease, transform 0.16s ease;
+                transform-origin: top right;
+            }
+
+            .svg-menu-enter-from,
+            .svg-menu-leave-to {
+                opacity: 0;
+                transform: translateY(-6px) scale(0.96);
+            }
         }
     }
 

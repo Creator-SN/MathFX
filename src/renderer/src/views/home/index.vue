@@ -327,7 +327,7 @@ export default {
             });
         },
         async return_svg() {
-            let result = await new Promise((resolve, reject) => {
+            let result = await new Promise(async (resolve, reject) => {
                 let katex_placeholder = this.$refs.katex_placeholder;
                 let svg_element = katex_placeholder.querySelector('span');
                 if (!svg_element) {
@@ -337,11 +337,38 @@ export default {
                     return;
                 }
                 const svgDocument = elementToSVG(svg_element);
-                    // Inline external resources (fonts, images, etc) as data: URIs
-                // await inlineResources(svgDocument.documentElement)
+                const svgRoot = svgDocument.documentElement;
+                const bounds = (svgRoot.getAttribute("viewBox") || "")
+                    .trim()
+                    .split(/[\s,]+/)
+                    .map(Number);
+                if (bounds.length === 4 && bounds.every(Number.isFinite)) {
+                    const fontSize = parseFloat(
+                        getComputedStyle(svg_element).fontSize
+                    ) || 16;
+                    const paddingX = 8;
+                    const paddingTop = 8;
+                    const paddingBottom = Math.max(64, fontSize * 2);
+                    const [x, y, width, height] = bounds;
+                    svgRoot.setAttribute(
+                        "viewBox",
+                        `${x - paddingX} ${y - paddingTop} ${width + paddingX * 2} ${height + paddingTop + paddingBottom}`
+                    );
+                    svgRoot.setAttribute("width", `${width + paddingX * 2}`);
+                    svgRoot.setAttribute("height", `${height + paddingTop + paddingBottom}`);
+                }
+                svgRoot.setAttribute("overflow", "visible");
+                svgRoot.setAttribute("shape-rendering", "geometricPrecision");
+                document.body.appendChild(svgRoot);
+                let svgString;
+                try {
+                    await inlineResources(svgRoot);
+                    svgString = new XMLSerializer().serializeToString(svgRoot);
+                } finally {
+                    svgRoot.remove();
+                }
 
                 // Get SVG string
-                const svgString = new XMLSerializer().serializeToString(svgDocument)
                 let image = new Image();
                 image.src =
                     "data:image/svg+xml;base64," +

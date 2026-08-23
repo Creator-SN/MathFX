@@ -68,6 +68,16 @@ function registerIpc() {
     ipcMain.on("capture", () => screenshots?.startCapture());
     ipcMain.on("clipboard-write-text", (_, text) => clipboard.writeText(text));
     ipcMain.on("clipboard-write-image", (_, dataUrl) => clipboard.writeImage(nativeImage.createFromDataURL(dataUrl)));
+    ipcMain.on("clipboard-write-svg", (_, svg) => {
+        if (typeof svg !== "string" || !svg.trim()) return;
+        clipboard.clear();
+        // Word and vector-aware apps consume the SVG format.
+        clipboard.writeBuffer("image/svg+xml", Buffer.from(svg, "utf8"));
+    });
+    ipcMain.on("clipboard-write-svg-text", (_, svg) => {
+        if (typeof svg !== "string" || !svg.trim()) return;
+        clipboard.writeText(svg);
+    });
 }
 
 function createWindow() {

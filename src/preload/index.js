@@ -29,6 +29,8 @@ const api = {
     },
     writeText: (text) => ipcRenderer.send("clipboard-write-text", text),
     writeImage: (dataUrl) => ipcRenderer.send("clipboard-write-image", dataUrl),
+    writeSvg: (svg) => ipcRenderer.send("clipboard-write-svg", svg),
+    writeSvgText: (svg) => ipcRenderer.send("clipboard-write-svg-text", svg),
 };
 
 if (process.contextIsolated) {

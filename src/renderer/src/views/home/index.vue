@@ -175,9 +175,7 @@ export default {
         }),
         ...mapState(useAppStore, ["local"]),
         s() {
-            return this.subscriptions.find((item) =>
-                item.name.startsWith(this.cur_sub)
-            );
+            return this.subscriptions.find((item) => item.name === this.cur_sub);
             // return this.subscriptions[this.cur_sub]
         },
         h() {
@@ -222,8 +220,11 @@ export default {
                 );
                 return 0;
             }
-            if (this.ops[this.cur_sub] !== undefined)
-                this.ops[this.cur_sub]();
+            const operation =
+                this.ops[this.cur_sub] ||
+                (this.s?.name?.startsWith("chat") ? this.get_chat : undefined);
+            if (operation !== undefined)
+                operation.call(this);
             else
                 this.$barWarning(
                     `${this.local("No subscriptions were selected")}`,

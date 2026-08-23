@@ -23,7 +23,16 @@ export const useAppStore = defineStore("app", {
         reviseCurH({ cur_h, v }) { this.cur_h = cur_h; v.$db.set("cur_h", cur_h).write(); },
         reviseSubscriptions({ subscriptions, v }) { this.subscriptions = subscriptions; v.$db.set("subscriptions", subscriptions).write(); },
         addHistory({ h, v }) { this.history.unshift(h); v.$db.set("history", this.history).write(); },
-        removeHistory({ guid, v }) { const index = this.history.findIndex((item) => item.guid === guid); if (index >= 0) this.history.splice(index, 1); v.$db.set("history", this.history).write(); },
+        removeHistory({ guid, v }) {
+            const nextHistory = this.history.filter((item) => item.guid !== guid);
+            if (nextHistory.length === this.history.length) return;
+            this.history = nextHistory;
+            if (this.cur_h === guid) {
+                this.cur_h = nextHistory[0]?.guid || 0;
+                v.$db.set("cur_h", this.cur_h).write();
+            }
+            v.$db.set("history", nextHistory).write();
+        },
         reviseHistory({ history, v }) { this.history = history; v.$db.set("history", history).write(); },
         reviseI18N(i18n) { this.i18n = i18n; },
         toggleTheme(v) { this.theme = this.theme === "light" ? "dark" : "light"; v.$db.set("theme", this.theme).write(); },

@@ -2,43 +2,18 @@ export default {
     init_status: true,
     subscriptions: [
         {
-            name: 'sLatexOCR',
-            title: 'sLatex OCR API',
+            name: 'chat',
+            title: 'Chat API',
             data: [
-                { name: 'Url', key: 'url', value: '' },
-                { name: 'API Key', key: 'api_key', value: '' }
-            ]
-        },
-        {
-            name: 'mathpix',
-            title: 'MathPix API(Recommend)',
-            data: [
-                { name: 'Url', key: 'url', value: '' },
-                { name: 'App ID', key: 'app_id', value: '' },
-                { name: 'Key', key: 'app_key', value: '' }
-            ]
-        },
-        {
-            name: "xunfei",
-            title: "Xunfei API",
-            data: [
-                { name: "Url", key: "url", value: '' },
-                { name: "App ID", key: "app_id", value: '' },
-                { name: "App Key", key: "app_key", value: '' },
-                { name: "App Secret", key: "app_secret", value: "" }
-            ]
-        },
-        {
-            name: 'baidu',
-            title: 'Baidu API',
-            data: [
-                { name: 'Url', key: 'url', value: '' },
+                { name: 'Name', key: 'display_name', value: 'Chat API' },
+                { name: 'Base URL', key: 'base_url', value: 'https://api.openai.com/v1' },
                 { name: 'API Key', key: 'api_key', value: '' },
-                { name: 'Secret Key', key: 'secret_key', value: '' }
+                { name: 'Model', key: 'model', value: 'gpt-4o-mini' },
+                { name: 'Reasoning Effort', key: 'reasoning_effort', value: 'medium' }
             ]
         }
     ],
-    cur_sub: 0,
+    cur_sub: "chat",
     cur_h: 0,
     history: [],
     language: "en",

@@ -1,10 +1,18 @@
 import { defineStore } from "pinia";
 import { HandyScreenshotPlugin } from "@/js/paste_plugins.js";
+import dataSample from "@/js/data_sample.js";
 
 export const useAppStore = defineStore("app", {
     state: () => ({
-        handlerScan: false, subscriptions: [], history: [], cur_sub: 0, cur_h: 0,
-        i18n: {}, language: "en", theme: "light", paste_plugin: new HandyScreenshotPlugin(),
+        handlerScan: false,
+        subscriptions: dataSample.subscriptions,
+        history: dataSample.history,
+        cur_sub: dataSample.cur_sub,
+        cur_h: dataSample.cur_h,
+        i18n: {},
+        language: dataSample.language,
+        theme: dataSample.theme,
+        paste_plugin: new HandyScreenshotPlugin(),
     }),
     getters: { local: (state) => (text) => state.i18n[text]?.[state.language] || text },
     actions: {

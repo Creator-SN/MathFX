@@ -6,15 +6,14 @@
         "name": "Creator-SN",
         "url": "https://github.com/Creator-SN"
     },
-    "description": "Formula recognition client.Support Mathpix,Xunfei,Baidu API",
+    "description": "Formula recognition client powered by OpenAI-compatible Chat APIs",
     "repository": {
         "type": "git",
         "url": "https://github.com/Creator-SN/MathFX"
     },
     "keywords": [
-        "mathpix",
-        "xunfei",
-        "baidu",
+        "llm",
+        "chat api",
         "formula recognition"
     ],
     "scripts": {
@@ -31,6 +30,9 @@
     },
     "main": "./out/main/index.js",
     "dependencies": {
+        "@langchain/core": "^0.3.72",
+        "@langchain/langgraph": "^0.2.40",
+        "@langchain/openai": "^0.5.10",
         "@creatorsn/vfluent3": "^0.3.90",
         "adm-zip": "^0.5.5",
         "axios": "^0.21.1",

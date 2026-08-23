@@ -16,6 +16,11 @@ function createDatastore() {
     const adapter = new FileSync(join(app.getPath("userData"), "data.json"));
     db = Datastore(adapter);
     db.defaults(dataSample).write();
+    const subscriptions = db.get("subscriptions").value();
+    if (!Array.isArray(subscriptions) || !subscriptions.some((item) => item.name === "chat")) {
+        db.set("subscriptions", dataSample.subscriptions).write();
+        db.set("cur_sub", "chat").write();
+    }
 }
 
 function createScreenshots() {
@@ -23,12 +28,18 @@ function createScreenshots() {
     screenshots.on("ok", (_, buffer, data) => {
         if (!mainWindow || mainWindow.isDestroyed()) return;
         mainWindow.webContents.send("getCaptureData", {
-            data: "data:image/png;base64," + buffer.toString("base64"),
+            data: "data:image/png;base64," + Buffer.from(buffer).toString("base64"),
             bounds: data?.bounds,
             display: data?.display,
         });
     });
     screenshots.on("save", (event) => event.preventDefault());
+    screenshots.on("cancel", () => {
+        if (!mainWindow || mainWindow.isDestroyed()) return;
+        mainWindow.webContents.send("captureCancelled");
+        // Keep compatibility with an already-running/older preload script.
+        mainWindow.webContents.send("getCaptureData", { cancelled: true });
+    });
 }
 
 function sendScan() {

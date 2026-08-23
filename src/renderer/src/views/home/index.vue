@@ -134,6 +134,7 @@ import displayer from "@/components/home/displayer.vue";
 import list from "@/components/history/list.vue";
 import { mapState, mapActions } from "pinia";
 import { useAppStore } from "@/stores/app.js";
+import { recognizeFormula } from "@/js/llm.js";
 import CryptoJS from "crypto-js";
 const request = nodeRequire("request");
 import katex from 'katex';
@@ -148,10 +149,7 @@ export default {
     data() {
         return {
             ops: {
-                sLatexOCR: this.get_sLatex,
-                mathpix: this.get_mathpix,
-                xunfei: this.get_xunfei,
-                baidu: this.get_baidu,
+                chat: this.get_chat,
             },
             cur_latex: "",
             one_times_lock: false,
@@ -283,9 +281,14 @@ export default {
         },
         async get_clip() {
             return await new Promise((resolve, reject) => {
-                api?.startCapture();
-                const cleanup = api?.onCaptureData((data) => {
-                    cleanup?.();
+                let cleanupData;
+                let cleanupCancel;
+                const cleanup = () => {
+                    cleanupData?.();
+                    cleanupCancel?.();
+                };
+                cleanupData = api?.onCaptureData((data) => {
+                    cleanup();
                     const imageData =
                         typeof data == "string" ? data : data?.data;
                     if (typeof imageData == "string") {
@@ -297,6 +300,11 @@ export default {
                         reject(-1);
                     }
                 });
+                cleanupCancel = api?.onCaptureCancelled?.(() => {
+                    cleanup();
+                    reject(new Error("Screenshot cancelled"));
+                });
+                api?.startCapture();
             });
         },
         isSubscriptionReady() {
@@ -368,6 +376,52 @@ export default {
                     });
                 }
             });
+        },
+        async save_latex(text, source) {
+            const latex = String(text || "").trim();
+            if (!latex) throw new Error("The model returned empty LaTeX.");
+            this.cur_latex = latex;
+            await this.render_mathpix();
+            const mathml = await this.return_mathml(latex);
+            const imgs = await this.return_svg();
+            const h = {
+                guid: this.$SUtility.Guid(),
+                latex_bare: latex,
+                latex_1: "$" + latex + "$",
+                latex_2: "$$\n" + latex + "\n$$",
+                latex_3: "\\begin{equation}\n" + latex + "\n\\end{equation}",
+                mathml,
+                ...imgs,
+                src: source,
+                date: this.$SDate.DateToString(new Date()),
+            };
+            this.addHistory({ v: this, h });
+            this.reviseCurH({ v: this, cur_h: h.guid });
+        },
+        async get_chat() {
+            if (this.one_times_lock) {
+                this.$barWarning("Processing", {
+                    status: "warning",
+                    theme: this.theme,
+                });
+                return;
+            }
+            this.one_times_lock = true;
+            try {
+                this.origin = await this.get_clip();
+                const config = Object.fromEntries(
+                    this.s.data.map((item) => [item.key, item.value])
+                );
+                const result = await recognizeFormula(this.origin, config);
+                await this.save_latex(result?.latex, this.origin);
+            } catch (error) {
+                this.$barWarning(
+                    error?.message || "Recognition failed",
+                    { status: "error", theme: this.theme }
+                );
+            } finally {
+                this.one_times_lock = false;
+            }
         },
         async get_sLatex() {
             if (this.one_times_lock) {

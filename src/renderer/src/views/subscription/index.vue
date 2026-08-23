@@ -20,9 +20,9 @@
                         :src="s.url"
                         alt=""
                     />
-                    <p class="s-api-title">{{ itemOfName(s.name).title }}</p>
+                    <p class="s-api-title">{{ displayName(s.name) }}</p>
                     <div
-                        v-for="(item, i) in itemOfName(s.name).data"
+                        v-for="(item, i) in (itemOfName(s.name)?.data || [])"
                         :key="index + '.' + i"
                         class="s-info-row"
                         @click="$event.stopPropagation()"
@@ -90,18 +90,12 @@
 import { mapState, mapActions } from "pinia";
 import { useAppStore } from "@/stores/app.js";
 import mathFXImg from "@/assets/logo.svg";
-import apiImg from "@/assets/subscription/api.svg";
-import baiduImg from "@/assets/subscription/baidu.svg";
-import mathpixImg from "@/assets/subscription/mathpix.svg";
 
 export default {
     data() {
         return {
             s_list: [
-                { name: "sLatexOCR", url: mathFXImg, revise: false },
-                { name: "mathpix", url: mathpixImg, revise: false },
-                { name: "xunfei", url: apiImg, revise: false },
-                { name: "baidu", url: baiduImg, revise: false },
+                { name: "chat", url: mathFXImg, revise: false },
             ],
         };
     },
@@ -119,7 +113,14 @@ export default {
         itemOfName(name) {
             return this.subscriptions.find((item) =>
                 item.name.startsWith(name)
-            );
+            ) || { name, title: name, data: [] };
+        },
+        displayName(name) {
+            const item = this.itemOfName(name);
+            const customName = item?.data?.find(
+                (field) => field.key === "display_name"
+            )?.value;
+            return customName || item?.title || name;
         },
         reviseInfo(s) {
             if (!s.revise) {

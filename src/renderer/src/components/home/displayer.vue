@@ -118,7 +118,7 @@
                     :isBoxShadow="true"
                     class="item-button"
                     @click="copy_text(item)"
-                ><i class="ms-Icon ms-Icon--Copy"></i></fv-button>
+                ><i class="ms-Icon ms-Icon--Set"></i></fv-button>
             </div>
             <div class="item-block">
                 <fv-text-box

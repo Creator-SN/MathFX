@@ -30,7 +30,7 @@
                         :title="local('Quick Copy')"
                         @click="copy_text($event, h.latex_1)"
                     >
-                        <i class="ms-Icon ms-Icon--Copy"></i>
+                        <i class="ms-Icon ms-Icon--Set"></i>
                     </fv-button>
                     <fv-button
                         :theme="theme"

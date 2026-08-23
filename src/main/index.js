@@ -1,11 +1,35 @@
 import { app, BrowserWindow, clipboard, globalShortcut, ipcMain, Menu, nativeImage, shell, Tray } from "electron";
 import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
-import capture from "electron-vue-screen-capture/src/main/modules/screenCapture.js";
+import Screenshots from "electron-screenshots";
+import Datastore from "lowdb";
+import FileSync from "lowdb/adapters/FileSync";
+import dataSample from "../renderer/src/js/data_sample.js";
 
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
 let mainWindow = null;
 let tray = null;
+let screenshots = null;
+let db = null;
+
+function createDatastore() {
+    const adapter = new FileSync(join(app.getPath("userData"), "data.json"));
+    db = Datastore(adapter);
+    db.defaults(dataSample).write();
+}
+
+function createScreenshots() {
+    screenshots = new Screenshots({ singleWindow: true });
+    screenshots.on("ok", (_, buffer, data) => {
+        if (!mainWindow || mainWindow.isDestroyed()) return;
+        mainWindow.webContents.send("getCaptureData", {
+            data: "data:image/png;base64," + buffer.toString("base64"),
+            bounds: data?.bounds,
+            display: data?.display,
+        });
+    });
+    screenshots.on("save", (event) => event.preventDefault());
+}
 
 function sendScan() {
     if (!mainWindow || mainWindow.isDestroyed()) return;
@@ -15,6 +39,11 @@ function sendScan() {
 
 function registerIpc() {
     ipcMain.on("get-user-data-path", (event) => { event.returnValue = app.getPath("userData"); });
+    ipcMain.on("db-get", (event, key) => { event.returnValue = db?.get(key).value(); });
+    ipcMain.on("db-set", (event, key, value) => {
+        db?.set(key, value).write();
+        event.returnValue = true;
+    });
     ipcMain.on("min", () => mainWindow?.minimize());
     ipcMain.on("max", () => {
         if (!mainWindow) return;
@@ -23,14 +52,9 @@ function registerIpc() {
     });
     ipcMain.on("close", () => mainWindow?.hide());
     ipcMain.on("show", () => mainWindow?.show());
-    ipcMain.on("capture", () => capture.start("minimum"));
+    ipcMain.on("capture", () => screenshots?.startCapture());
     ipcMain.on("clipboard-write-text", (_, text) => clipboard.writeText(text));
     ipcMain.on("clipboard-write-image", (_, dataUrl) => clipboard.writeImage(nativeImage.createFromDataURL(dataUrl)));
-    ipcMain.on("getCaptureData", (_, data) => {
-        capture.targetWin?.send("getCaptureData", data);
-        capture.close("hide");
-        setTimeout(() => capture.targetWin?.show(), 300);
-    });
 }
 
 function createWindow() {
@@ -43,7 +67,6 @@ function createWindow() {
             webSecurity: false, devTools: true,
         },
     });
-    capture.init(mainWindow);
     mainWindow.setMenu(null);
     mainWindow.on("ready-to-show", () => mainWindow.show());
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -77,11 +100,14 @@ if (!gotSingleInstanceLock) {
     app.whenReady().then(() => {
         electronApp.setAppUserModelId("com.creatorsn.mathfx");
         app.on("browser-window-created", (_, window) => optimizer.watchWindowShortcuts(window));
+        createDatastore();
+        createScreenshots();
         registerIpc();
         createWindow();
         createTray();
         globalShortcut.register("CommandOrControl+Shift+L", () => mainWindow?.webContents.toggleDevTools());
         globalShortcut.register(process.platform === "darwin" ? "Alt+Cmd+X" : "Alt+Shift+X", sendScan);
+        globalShortcut.register("Esc", () => screenshots?.endCapture());
         app.on("activate", () => {
             if (BrowserWindow.getAllWindows().length === 0) createWindow();
         });

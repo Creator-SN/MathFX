@@ -132,7 +132,7 @@ const nodeRequire = window.require;
 const api = globalThis.api;
 import displayer from "@/components/home/displayer.vue";
 import list from "@/components/history/list.vue";
-import { mapState } from "pinia";
+import { mapState, mapActions } from "pinia";
 import { useAppStore } from "@/stores/app.js";
 import CryptoJS from "crypto-js";
 const request = nodeRequire("request");
@@ -196,6 +196,11 @@ export default {
         this.handler_event(this.handlerScan, false);
     },
     methods: {
+        ...mapActions(useAppStore, [
+            "triggerHandlerScan",
+            "reviseCurH",
+            "addHistory",
+        ]),
         op() {
             if (!this.cur_sub) {
                 this.$barWarning(
@@ -233,7 +238,7 @@ export default {
         handler_event(to, from) {
             if (to === true) {
                 this.op();
-                this.$store.commit("triggerHandlerScan", false);
+                this.triggerHandlerScan(false);
             }
         },
         move_prev() {
@@ -242,7 +247,7 @@ export default {
             );
             if (index < 0) {
                 if (this.history.length > 0)
-                    this.$store.commit("reviseCurH", {
+                    this.reviseCurH({
                         v: this,
                         cur_h: this.history[0].guid,
                     });
@@ -250,7 +255,7 @@ export default {
             }
             index--;
             if (this.history[index])
-                this.$store.commit("reviseCurH", {
+                this.reviseCurH({
                     v: this,
                     cur_h: this.history[index].guid,
                 });
@@ -262,7 +267,7 @@ export default {
             );
             if (index < 0) {
                 if (this.history.length > 0)
-                    this.$store.commit("reviseCurH", {
+                    this.reviseCurH({
                         v: this,
                         cur_h: this.history[0].guid,
                     });
@@ -270,7 +275,7 @@ export default {
             }
             index++;
             if (this.history[index])
-                this.$store.commit("reviseCurH", {
+                this.reviseCurH({
                     v: this,
                     cur_h: this.history[index].guid,
                 });
@@ -281,8 +286,10 @@ export default {
                 api?.startCapture();
                 const cleanup = api?.onCaptureData((data) => {
                     cleanup?.();
-                    if (typeof data == "string") {
-                        resolve(data);
+                    const imageData =
+                        typeof data == "string" ? data : data?.data;
+                    if (typeof imageData == "string") {
+                        resolve(imageData);
                     } else {
                         this.$barWarning(
                             this.local("No screenshot is obtained")
@@ -415,11 +422,11 @@ export default {
                             src: this.origin,
                             date: this.$SDate.DateToString(new Date()),
                         };
-                        this.$store.commit("addHistory", {
+                        this.addHistory({
                             v: this,
                             h,
                         });
-                        this.$store.commit("reviseCurH", {
+                        this.reviseCurH({
                             v: this,
                             cur_h: h.guid,
                         });
@@ -498,11 +505,11 @@ export default {
                             src: this.origin,
                             date: this.$SDate.DateToString(new Date()),
                         };
-                        this.$store.commit("addHistory", {
+                        this.addHistory({
                             v: this,
                             h,
                         });
-                        this.$store.commit("reviseCurH", {
+                        this.reviseCurH({
                             v: this,
                             cur_h: h.guid,
                         });
@@ -603,11 +610,11 @@ export default {
                                 src: this.origin,
                                 date: this.$SDate.DateToString(new Date()),
                             };
-                            this.$store.commit("addHistory", {
+                            this.addHistory({
                                 v: this,
                                 h,
                             });
-                            this.$store.commit("reviseCurH", {
+                            this.reviseCurH({
                                 v: this,
                                 cur_h: h.guid,
                             });
@@ -714,11 +721,11 @@ export default {
                                 src: this.origin,
                                 date: this.$SDate.DateToString(new Date()),
                             };
-                            this.$store.commit("addHistory", {
+                            this.addHistory({
                                 v: this,
                                 h,
                             });
-                            this.$store.commit("reviseCurH", {
+                            this.reviseCurH({
                                 v: this,
                                 cur_h: h.guid,
                             });
@@ -791,11 +798,11 @@ export default {
                     src: imgs.png,
                     date: this.$SDate.DateToString(new Date()),
                 };
-                this.$store.commit("addHistory", {
+                this.addHistory({
                     v: this,
                     h,
                 });
-                this.$store.commit("reviseCurH", {
+                this.reviseCurH({
                     v: this,
                     cur_h: h.guid,
                 });

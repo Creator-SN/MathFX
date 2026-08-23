@@ -18,11 +18,11 @@
         "formula recognition"
     ],
     "scripts": {
-        "dev": "electron-vite dev",
+        "dev": "node scripts/electron-vite.cjs dev",
         "build": "electron-vite build",
-        "start": "electron-vite preview",
+        "start": "node scripts/electron-vite.cjs preview",
         "electron:build": "npm run build && electron-builder --publish never",
-        "electron:serve": "electron-vite dev",
+        "electron:serve": "node scripts/electron-vite.cjs dev",
         "build:unpack": "npm run build && electron-builder --dir",
         "build:win": "npm run build && electron-builder --win",
         "postinstall": "electron-builder install-app-deps",
@@ -31,35 +31,35 @@
     },
     "main": "./out/main/index.js",
     "dependencies": {
+        "@creatorsn/vfluent3": "^0.3.90",
         "adm-zip": "^0.5.5",
         "axios": "^0.21.1",
         "core-js": "^3.6.5",
         "crypto-js": "^4.0.0",
         "dom-to-svg": "^0.12.2",
-        "electron-vue-screen-capture": "^0.0.10",
+        "electron-screenshots": "^0.6.2",
         "fs-extra": "^9.1.0",
         "ini": "^2.0.0",
         "katex": "^0.16.21",
         "lowdb": "^1.0.0",
         "npm-check": "^5.9.2",
+        "pinia": "^2.1.7",
+        "request": "^2.88.2",
         "sass-loader": "^8.0.2",
-        "@creatorsn/vfluent3": "^0.3.90",
         "vue": "^3.4.21",
-        "vue-router": "4.5.1",
-        "pinia": "^2.1.7"
-        ,"request": "^2.88.2"
+        "vue-router": "4.5.1"
     },
     "devDependencies": {
         "@electron-toolkit/utils": "^4.0.0",
         "@vitejs/plugin-vue": "^5.0.4",
-        "electron": "^37.2.3",
+        "@vue/compiler-sfc": "^3.4.21",
+        "electron": "^37.10.3",
         "electron-builder": "^25.1.8",
         "electron-vite": "^4.0.0",
         "eslint": "^8.49.0",
         "eslint-plugin-vue": "^9.17.0",
         "sass": "^1.71.1",
-        "vite": "^5.1.6",
-        "@vue/compiler-sfc": "^3.4.21"
+        "vite": "^5.1.6"
     },
     "eslintConfig": {
         "root": true,

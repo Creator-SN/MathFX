@@ -8,7 +8,7 @@
                 <fv-img
                     v-show="show.src"
                     class="ori-img-box"
-                    :src="value.src"
+                    :src="modelValue.src"
                 ></fv-img>
             </transition>
             <div class="svg-img-block">
@@ -40,13 +40,13 @@
             </div>
             <img
                 v-show="false"
-                :src="value.svg"
+                :src="modelValue.svg"
                 alt=""
                 ref="svg"
             />
             <img
                 v-show="false"
-                :src="value.png"
+                :src="modelValue.png"
                 alt=""
                 ref="png"
             />
@@ -62,7 +62,7 @@
                     borderWidth="2"
                     style="width: 40px; height: 40px"
                     title="Copy Microsoft© Word"
-                    @click="copy_text(value.mathml)"
+                    @click="copy_text(modelValue.mathml)"
                 >
                     <i class="ms-Icon ms-Icon--WordLogo"></i>
                 </fv-button>
@@ -94,7 +94,7 @@
         </div>
         <div
             class="math-box"
-            v-if="value.latex_bare"
+            v-if="modelValue.latex_bare"
         >
             <div
                 class="item-block"

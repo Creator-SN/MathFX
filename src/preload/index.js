@@ -3,6 +3,8 @@ import { contextBridge, ipcRenderer } from "electron";
 const api = {
     platform: process.platform,
     userDataPath: ipcRenderer.sendSync("get-user-data-path"),
+    dbGet: (key) => ipcRenderer.sendSync("db-get", key),
+    dbSet: (key, value) => ipcRenderer.sendSync("db-set", key, value),
     minimizeWindow: () => ipcRenderer.send("min"),
     maximizeWindow: () => ipcRenderer.send("max"),
     closeWindow: () => ipcRenderer.send("close"),

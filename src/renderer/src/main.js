@@ -10,7 +10,6 @@ import VueFluent from "@creatorsn/vfluent3";
 import "@creatorsn/vfluent3/style.css";
 import "@/style/global.scss";
 import axios from 'axios'
-import { useAppStore } from "@/stores/app.js";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -23,7 +22,4 @@ app.config.globalProperties.$axios = axios;
 app.config.globalProperties.$Go = (str) => router.push(str);
 app.config.globalProperties.$Back = () => router.back();
 app.config.globalProperties.$Jump = (str) => window.open(str);
-app.config.globalProperties.$store = {
-    commit(name, payload) { return useAppStore(pinia)[name](payload); },
-};
 app.mount("#app");

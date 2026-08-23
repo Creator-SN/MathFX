@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { mapState } from "pinia";
+import { mapState, mapActions } from "pinia";
 import { useAppStore } from "@/stores/app.js";
 import mathFXImg from "@/assets/logo.svg";
 import apiImg from "@/assets/subscription/api.svg";
@@ -115,6 +115,7 @@ export default {
     },
     mounted() {},
     methods: {
+        ...mapActions(useAppStore, ["reviseSubscriptions", "reviseCurSub"]),
         itemOfName(name) {
             return this.subscriptions.find((item) =>
                 item.name.startsWith(name)
@@ -125,7 +126,7 @@ export default {
                 s.revise = true;
                 return 0;
             }
-            this.$store.commit("reviseSubscriptions", {
+            this.reviseSubscriptions({
                 v: this,
                 subscriptions: this.subscriptions,
             });
@@ -145,7 +146,7 @@ export default {
                         item.data.forEach((el, index) => {
                             item.data[index].value = "";
                         });
-                        this.$store.commit("reviseSubscriptions", {
+                        this.reviseSubscriptions({
                             v: this,
                             subscriptions: this.subscriptions,
                         });
@@ -155,7 +156,7 @@ export default {
             );
         },
         curChoosen(s) {
-            this.$store.commit("reviseCurSub", {
+            this.reviseCurSub({
                 v: this,
                 cur_sub: s.name,
             });

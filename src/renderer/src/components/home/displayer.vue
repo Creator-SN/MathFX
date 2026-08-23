@@ -195,26 +195,53 @@ export default {
         copy_text(val) {
             api?.writeText(val);
         },
-        copy_image(el) {
-            let cas = document.createElement("canvas");
-            let ctx = cas.getContext("2d");
-            cas.width = el.width;
-            cas.height = el.height;
-            ctx.drawImage(el, 0, 0);
-            let imgData = ctx.getImageData(0, 0, el.width, el.height);
-            let data = imgData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                if (data[i + 3] < 255) {
-                    data[i] = 255 - data[i];
-                    data[i + 1] = 255 - data[i + 1];
-                    data[i + 2] = 255 - data[i + 2];
-                    data[i + 3] = 255 - data[i + 3];
+        async copy_image(el) {
+            try {
+                const svg = this.modelValue.svg;
+                const image = new Image();
+                const source = svg?.startsWith("data:image/svg")
+                    ? svg
+                    : svg
+                        ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+                        : el?.src;
+
+                if (!source) throw new Error("Empty image content");
+                await new Promise((resolve, reject) => {
+                    image.onload = resolve;
+                    image.onerror = reject;
+                    image.src = source;
+                });
+
+                let width = image.naturalWidth || el?.naturalWidth || el?.width;
+                let height = image.naturalHeight || el?.naturalHeight || el?.height;
+                if (svg && !svg.startsWith("data:image/svg")) {
+                    const root = new DOMParser()
+                        .parseFromString(svg, "image/svg+xml")
+                        .documentElement;
+                    const viewBox = (root.getAttribute("viewBox") || "")
+                        .trim()
+                        .split(/[\s,]+/)
+                        .map(Number);
+                    width = parseFloat(root.getAttribute("width")) || viewBox[2] || width;
+                    height = parseFloat(root.getAttribute("height")) || viewBox[3] || height;
                 }
-            }
-            ctx.putImageData(imgData, 0, 0);
-            const dataUrl = cas.toDataURL("image/png");
-            if (dataUrl) api?.writeImage(dataUrl);
-            else {
+                if (!width || !height) throw new Error("Empty image content");
+
+                const scale = Math.max(2, Math.min(4, window.devicePixelRatio || 1));
+                const canvas = document.createElement("canvas");
+                canvas.width = Math.ceil(width * scale);
+                canvas.height = Math.ceil(height * scale);
+                const context = canvas.getContext("2d");
+                context.imageSmoothingEnabled = true;
+                context.imageSmoothingQuality = "high";
+                context.fillStyle = "white";
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                const dataUrl = canvas.toDataURL("image/png");
+                if (dataUrl) api?.writeImage(dataUrl);
+                else throw new Error("Empty image content");
+            } catch (error) {
                 this.$barWarning(`${this.local("Empty image content")}`, {
                     status: "error",
                     theme: this.theme,

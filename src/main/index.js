@@ -32,6 +32,7 @@ function createScreenshots() {
             bounds: data?.bounds,
             display: data?.display,
         });
+        mainWindow.show();
     });
     screenshots.on("save", (event) => event.preventDefault());
     screenshots.on("cancel", () => {
@@ -39,13 +40,14 @@ function createScreenshots() {
         mainWindow.webContents.send("captureCancelled");
         // Keep compatibility with an already-running/older preload script.
         mainWindow.webContents.send("getCaptureData", { cancelled: true });
+        mainWindow.show();
     });
 }
 
 function sendScan() {
     if (!mainWindow || mainWindow.isDestroyed()) return;
+    mainWindow.hide();
     mainWindow.webContents.send("scan", { source: "tray" });
-    mainWindow.show();
 }
 
 function registerIpc() {

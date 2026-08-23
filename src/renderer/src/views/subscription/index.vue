@@ -3,8 +3,20 @@
         class="subscription-container"
         :class="[{ dark: theme === 'dark' }]"
     >
-        <div class="s-row">
+        <div class="s-row" style="justify-content: space-between;">
             <p class="s-title">{{local('Subscription')}}</p>
+            <fv-button
+                :theme="theme"
+                background="linear-gradient(128deg, rgba(50, 187, 245, 0.85), rgba(27, 96, 147, 0.85))"
+                foreground="white"
+                borderRadius="18"
+                style="width: 100px;"
+                :title="local('Add API')"
+                @click="addInfo"
+            >
+                <i class="ms-Icon ms-Icon--Add"></i>
+                <span style="margin-left: 6px">{{ local('Add API') }}</span>
+            </fv-button>
         </div>
         <div class="scroll-view">
             <div
@@ -80,6 +92,17 @@
                     >
                         <i class="ms-Icon ms-Icon--StrokeErase"></i>
                     </fv-button>
+                    <fv-button
+                        :theme="'dark'"
+                        fontSize="12"
+                        background="rgba(173, 38, 45, 1)"
+                        borderRadius="50"
+                        style="width: 30px; height: 30px; margin-left: 5px"
+                        :title="local('Delete')"
+                        @click="deleteInfo(s)"
+                    >
+                        <i class="ms-Icon ms-Icon--Delete"></i>
+                    </fv-button>
                 </div>
             </div>
         </div>
@@ -107,13 +130,14 @@ export default {
         }),
         ...mapState(useAppStore, ["local"]),
     },
-    mounted() {},
+    mounted() {
+        this.syncList();
+    },
     methods: {
         ...mapActions(useAppStore, ["reviseSubscriptions", "reviseCurSub"]),
         itemOfName(name) {
-            return this.subscriptions.find((item) =>
-                item.name.startsWith(name)
-            ) || { name, title: name, data: [] };
+            return this.subscriptions.find((item) => item.name === name) ||
+                { name, title: name, data: [] };
         },
         displayName(name) {
             const item = this.itemOfName(name);
@@ -121,6 +145,37 @@ export default {
                 (field) => field.key === "display_name"
             )?.value;
             return customName || item?.title || name;
+        },
+        syncList() {
+            this.s_list = this.subscriptions.map((item) => ({
+                name: item.name,
+                url: mathFXImg,
+                revise: false,
+            }));
+        },
+        addInfo() {
+            const names = new Set(this.subscriptions.map((item) => item.name));
+            let index = 1;
+            let name = "chat";
+            while (names.has(name)) name = `chat_${++index}`;
+
+            const title = `Chat API ${index}`;
+            this.subscriptions.push({
+                name,
+                title,
+                data: [
+                    { name: "Name", key: "display_name", value: title },
+                    { name: "Base URL", key: "base_url", value: "" },
+                    { name: "API Key", key: "api_key", value: "" },
+                    { name: "Model", key: "model", value: "" },
+                    { name: "Reasoning Effort", key: "reasoning_effort", value: "medium" },
+                ],
+            });
+            this.reviseSubscriptions({ v: this, subscriptions: this.subscriptions });
+            this.syncList();
+            const added = this.s_list.find((item) => item.name === name);
+            if (added) added.revise = true;
+            this.reviseCurSub({ v: this, cur_sub: name });
         },
         reviseInfo(s) {
             if (!s.revise) {
@@ -155,6 +210,32 @@ export default {
                     cancel: () => {},
                 }
             );
+        },
+        deleteInfo(s) {
+            this.$infoBox(`${this.local("Delete this subscription")}?`, {
+                status: "warning",
+                title: this.local("Delete"),
+                theme: this.theme,
+                confirm: () => {
+                    const index = this.subscriptions.findIndex(
+                        (item) => item.name === s.name
+                    );
+                    if (index < 0) return;
+                    this.subscriptions.splice(index, 1);
+                    this.reviseSubscriptions({
+                        v: this,
+                        subscriptions: this.subscriptions,
+                    });
+                    this.syncList();
+                    if (this.cur_sub === s.name) {
+                        this.reviseCurSub({
+                            v: this,
+                            cur_sub: this.subscriptions[0]?.name || "",
+                        });
+                    }
+                },
+                cancel: () => {},
+            });
         },
         curChoosen(s) {
             this.reviseCurSub({

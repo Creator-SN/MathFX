@@ -400,6 +400,8 @@ export default {
 				transition: all 0.3s;
 
 				.st-1 {
+                    @include nowrap;
+                    
 					min-width: 66px;
 					height: 32px;
 					padding: 0px 6px;

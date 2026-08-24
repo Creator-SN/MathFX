@@ -126,5 +126,9 @@ export default {
     "Delete this subscription": {
         "en": "Delete this subscription",
         "cn": "删除此订阅"
+    },
+    "Screenshot cancelled": {
+        "en": "Screenshot cancelled",
+        "cn": "截图已取消"
     }
 }

@@ -13,17 +13,26 @@ extraResources:
     to: resources
 win:
   executableName: MathFX
-  icon: build/icon.ico
+  icon: logo.ico
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: always
   createStartMenuShortcut: true
 mac:
-  icon: build/icon.icns
+  icon: Icon.icns
+  category: public.app-category.education
+  target:
+    - dmg
+    - zip
+  notarize: false
 linux:
   target:
     - AppImage
     - deb
   category: Utility
 npmRebuild: false
+publish:
+  provider: github
+  owner: Creator-SN
+  repo: MathFX

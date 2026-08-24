@@ -23,7 +23,8 @@
         "electron:build": "npm run build && electron-builder --publish never",
         "electron:serve": "node scripts/electron-vite.cjs dev",
         "build:unpack": "npm run build && electron-builder --dir",
-        "build:win": "npm run build && electron-builder --win",
+        "build:win": "npm run build && electron-builder --win --publish never",
+        "build:mac": "npm run build && electron-builder --mac --publish never",
         "postinstall": "electron-builder install-app-deps",
         "postuninstall": "electron-builder install-app-deps",
         "version:win": "powershell build/updateVersion.ps1"

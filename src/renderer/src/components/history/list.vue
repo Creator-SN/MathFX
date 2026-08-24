@@ -114,9 +114,8 @@ export default {
     height: 100%;
     padding: 0px 5px;
     box-sizing: border-box;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 370px));
-    grid-template-rows: repeat(auto-fill, 150px);
-    row-gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    row-gap: 5px;
     column-gap: 5px;
     display: grid;
     overflow: auto;
@@ -150,7 +149,7 @@ export default {
         width: 100%;
         min-height: 150px;
         height: 150px;
-        margin-bottom: 15px;
+        margin-bottom: 5px;
         background: white;
         border: rgba(6, 107, 150, 0) solid 2px;
         border-radius: 8px;

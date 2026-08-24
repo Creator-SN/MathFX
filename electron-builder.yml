@@ -1,0 +1,38 @@
+appId: com.creatorsn.mathfx
+productName: MathFX
+directories:
+  buildResources: build
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintcache,.prettierignore,.prettierrc.json,README.md}'
+  - '!{.env,.env.*}'
+extraResources:
+  - from: resources
+    to: resources
+win:
+  executableName: MathFX
+  icon: logo.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+mac:
+  icon: Icon.icns
+  category: public.app-category.education
+  target:
+    - dmg
+    - zip
+  notarize: false
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Utility
+npmRebuild: false
+publish:
+  provider: github
+  owner: Creator-SN
+  repo: MathFX

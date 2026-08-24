@@ -1,112 +1,97 @@
-# This is a basic workflow to help you get started with Actions
+name: Release
 
-name: Release ✈
-
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     tags:
       - "v*"
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+permissions:
+  contents: write
+
 jobs:
-  # This workflow contains a single job called "build"
-  window:
-    # The type of runner that the job will run on
-    runs-on: windows-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  windows:
+    runs-on: windows-2022
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      # Uses NodeJs Environment
-      - uses: actions/setup-node@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
-          cache: "yarn"
-
-      - name: install dependencies
+          node-version: 20
+          cache: yarn
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        env:
+          npm_config_python: ${{ env.pythonLocation }}\python.exe
         run: yarn install --frozen-lockfile
-
-      - name: build win x64
-        run: yarn electron:build
-
-      - name: Get tag
-        id: tag
-        uses: dawidd6/action-get-tag@v1
-
-      - name: Rename
+      - name: Build Windows package
+        run: yarn build:win
+      - name: Collect Windows artifacts
+        shell: pwsh
         run: |
-          $v="${{steps.tag.outputs.tag}}".Substring(1)
-          mv "./dist_electron/MathFX Setup $v.exe" "MathFX-Setup-$v.exe"
-          mv "./dist_electron/MathFX Setup $v.exe.blockmap" "MathFX-Setup-$v.exe.blockmap"
-          mv "./dist_electron/latest.yml" "latest.yml"
-      - name: Upload Prerelease
-        uses: ncipollo/release-action@v1
-        if: ${{ contains(steps.tag.outputs.tag,'beta') }}
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Get-ChildItem "dist" -File | Where-Object {
+            $_.Extension -in @('.exe', '.blockmap', '.yml')
+          } | Copy-Item -Destination release
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
         with:
-          allowUpdates: true
-          artifacts: "*.exe,*.blockmap,*.yml"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
-
-      - name: Upload Release
-        uses: ncipollo/release-action@v1
-        if: ${{ !contains(steps.tag.outputs.tag,'beta') }}
-        with:
-          allowUpdates: true
-          artifacts: "*.exe,*.blockmap,*.yml"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: windows-release
+          path: release/*
 
   macos:
-    runs-on: macos-latest
+    runs-on: macos-14
     steps:
-      - uses: actions/checkout@v2
-
-      # Uses NodeJs Environment
-      - uses: actions/setup-node@v1
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
-          cache: "yarn"
-
-      - name: install dependencies
+          node-version: 20
+          cache: yarn
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        env:
+          npm_config_python: ${{ env.pythonLocation }}/bin/python
         run: yarn install --frozen-lockfile
-
-      - name: build macos x64
-        run: yarn electron:build
-
-      - name: Get tag
-        id: tag
-        uses: dawidd6/action-get-tag@v1
-
-      - name: Rename
+      - name: Build macOS package
+        run: yarn build:mac
+      - name: Collect macOS artifacts
         run: |
-          v=${{steps.tag.outputs.tag}}
-          v=${v:1}
-          mv ./dist_electron/MathFX-$v.dmg ./MathFX-$v.dmg
-          mv ./dist_electron/MathFX-$v.dmg.blockmap ./MathFX-$v.dmg.blockmap
-          mv ./dist_electron/MathFX-$v-mac.zip ./MathFX-$v-mac.zip
-          mv ./dist_electron/latest-mac.yml ./latest-mac.yml
-      - name: Upload Prerelease
-        uses: ncipollo/release-action@v1
-        if: ${{ contains(steps.tag.outputs.tag,'beta') }}
+          mkdir -p release
+          find dist -maxdepth 1 -type f \( -name "*.dmg" -o -name "*.zip" -o -name "*.blockmap" -o -name "latest-mac.yml" \) -exec cp {} release/ \;
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
         with:
-          allowUpdates: true
-          artifacts: "*.dmg,*.blockmap,*.yml"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
+          name: macos-release
+          path: release/*
 
-      - name: Upload Release
+  publish:
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+          path: release
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release
+          path: release
+      - name: Publish GitHub release
         uses: ncipollo/release-action@v1
-        if: ${{ !contains(steps.tag.outputs.tag,'beta') }}
         with:
           allowUpdates: true
-          artifacts: "*.dmg,*.blockmap,*.yml"
+          artifacts: "release/*"
+          generateReleaseNotes: true
+          prerelease: ${{ contains(github.ref_name, 'beta') }}
           token: ${{ secrets.GITHUB_TOKEN }}

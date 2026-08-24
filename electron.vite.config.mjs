@@ -7,6 +7,13 @@ export default defineConfig({
     preload: { plugins: [externalizeDepsPlugin()] },
     renderer: {
         base: "./",
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    additionalData: `@use "@/style/global.scss" as *;`,
+                },
+            },
+        },
         resolve: {
             alias: {
                 "@renderer": resolve("src/renderer/src"),

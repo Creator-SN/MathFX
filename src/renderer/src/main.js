@@ -8,7 +8,6 @@ import router from "@/router";
 
 import VueFluent from "@creatorsn/vfluent3";
 import "@creatorsn/vfluent3/style.css";
-import "@/style/global.scss";
 import axios from 'axios'
 
 const app = createApp(App);

@@ -1,78 +1,113 @@
 <div align="center">
-    <img src="./src/assets/logo.svg" width="60" style="width: 60px;"/>
-    <p>MathFX</p>
-    <p><img src="https://img.shields.io/github/v/release/Creator-SN/MathFX" /></p>
+  <img src="./src/renderer/src/assets/logo.svg" width="72" alt="MathFX logo" />
+  <h1>MathFX</h1>
+  <p>A beautiful, friendly, and minimal formula OCR workspace powered by VLM APIs.</p>
+  <p>
+    <a href="https://github.com/Creator-SN/MathFX/releases"><img src="https://img.shields.io/github/v/release/Creator-SN/MathFX?label=release" alt="Latest release" /></a>
+    <a href="https://github.com/Creator-SN/MathFX/actions/workflows/release.yml"><img src="https://github.com/Creator-SN/MathFX/actions/workflows/release.yml/badge.svg" alt="Release workflow" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT license" /></a>
+  </p>
+  <p><a href="./docs/README.zh-CN.md">中文文档</a></p>
 </div>
 
-<p align="center">
-    <a href="LICENSE">
-      <img src="https://img.shields.io/badge/License-MIT-yellow.svg">
-    </a>
-</p>
+## What is MathFX?
 
-## 💡 MathFX(Preview)
+MathFX is a small cross-platform desktop tool for turning mathematical expressions into clean, editable LaTeX. Its core workflow is deliberately simple: capture a formula, let a vision-language model understand it, and copy the result wherever you need it.
 
-A pure open source and cross platforms Math Formulates OCR tool based on the Electron.
-
-<div align="center" style="display: flex; justify-content: space-around;">
-    <img src="./src/assets/docs/scan.png" width="320" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
-    <img src="./src/assets/docs/scan_dark.png" width="320" style="width: 48%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
-</div>
-
-## 🎈 Platform
-
-- ✔ Windows 11 [Supported]
-- ✔ Windows 10 [Supported]
-- ✔ Mac(AMD64) [Supported]
-
-
-## ✨ Installation
-
-See the [Release Page](https://github.com/Creator-SN/MathFX/releases).
-
-## 🔨 Tutorial
-
-First, you need to set up the subscriptions, MathFX currently supports three formulate OCR APIs. Including:
-
-1. **SLatex OCR** **(Recommend)**: To build your own backend server, you can deploy the OCR server in this repo [SLatexOCR](https://github.com/aleversn/sLatexOCR).
-2. **Mathpix**: You can register the OCR API services with `$1` started, and the current pricing is much cheaper than directly using the Mathpix desktop application, each month you can have a `1,000` free requests. (`Although it costs $1 to sign up and a Credit Card is necessary, but the performance of this API is currently the best`).  [See Details](https://mathpix.com/ocr)
-3. **Xunfei** Formula Recognition API: You can register the OCR API for free and obtain a `500` requests per day. [See Details](https://www.xfyun.cn/service/formula-discern)
-4. **Baidu** Formula Recognition API: You can register the OCR API for free and obtain a `1,000` requests per month. [See Details](https://ai.baidu.com/tech/ocr/formula)
-
-> Note that the performance of `Xunfei` and `Baidu` OCR API is not good in complex science formulates scenes.
-
-Once you have an OCR API subscription, all you need to do is fill in the necessary information about the current subscription. Then click this subscription's item block until the block's border is `blue`.
+It is designed for papers, lecture notes, research workflows, and anyone who wants formula recognition without a crowded interface.
 
 <div align="center">
-    <img src="./src/assets/docs/subscription.png" style="width: 80%; box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);"/>
+  <img src="./src/renderer/src/assets/docs/scan.png" width="48%" alt="MathFX light interface" />
+  <img src="./src/renderer/src/assets/docs/scan_dark.png" width="48%" alt="MathFX dark interface" />
 </div>
 
-Now you can scan for a new formulate scene on the `Scan` page or press `Alt + Shift/Cmd + X` to quick scan.
+## Highlights
 
-## ⌨ Shortcuts
+- **Minimal formula OCR** — capture a formula from any screen with a global shortcut and receive editable LaTeX.
+- **VLM API based** — use a vision-capable, OpenAI-compatible Chat API instead of being locked to a single OCR vendor.
+- **Your provider, your model** — configure a custom display name, base URL, API key, model, and `reasoning_effort` (defaults to `medium`).
+- **LangGraph orchestration** — the recognition request is represented as a small LangGraph workflow, making the model call and result parsing explicit and extensible.
+- **Manual LaTeX workspace** — edit or enter LaTeX by hand, render it immediately, and keep the corrected result in history.
+- **Copy in useful formats** — quickly copy bare LaTeX, inline math, display math, equation-environment LaTeX, rendered SVG, or a raster image for documents and desktop applications.
+- **History and navigation** — keep recognized formulas locally, browse previous results, edit them, and remove entries when they are no longer needed.
+- **Light and dark themes** — a compact interface that stays out of the way while you work.
+- **Windows and macOS releases** — packaged installers are built automatically through GitHub Actions.
 
-- `Alt` + `Shift/Cmd` + `M`: Show the main program.
-- `Alt` + `Shift/Cmd` + `X`: Start a new quick scan.
+## How recognition works
 
-## 🌏 Language
+MathFX sends the captured image to the VLM endpoint configured in the selected subscription. The model is instructed to return one JSON object containing KaTeX-compatible LaTeX. MathFX then parses the response and performs rendering, SVG generation, format conversion, and clipboard operations locally.
 
-Currently supports two languages.
+The default prompt asks the model to preserve fractions, roots, matrices, Greek letters, limits, superscripts, subscripts, aligned equations, operators, and visible text while returning no Markdown or explanation.
 
-- English
-- 简体中文(Chinese)
+Because MathFX uses a VLM API, the selected model must support image input. The endpoint should be compatible with the OpenAI Chat Completions interface, including hosted OpenAI-compatible services and local vision models.
+
+> Images are sent to the API provider configured by you. Review that provider's privacy and retention policy before using sensitive material.
+
+## Quick start
+
+1. Download the latest installer from the [Releases page](https://github.com/Creator-SN/MathFX/releases).
+2. Open **Subscriptions** and add a Chat API subscription.
+3. Fill in the name, base URL, API key, vision-capable model, and optional `reasoning_effort` (`medium` by default).
+4. Select the subscription so its active state is highlighted.
+5. Press the scan button or use `Alt + Shift + X` on Windows, or `Alt + Cmd + X` on macOS.
+
+<div align="center">
+  <img src="./src/renderer/src/assets/docs/subscription.png" width="80%" alt="MathFX subscription settings" />
+</div>
+
+## Editing and copying formulas
+
+After recognition, the formula can be corrected manually. MathFX renders the edited LaTeX with KaTeX and lets you copy the result in the format that fits the destination:
+
+- plain LaTeX source for editors such as VS Code;
+- inline or display LaTeX for Markdown and documentation;
+- an equation environment for LaTeX documents;
+- rendered SVG for Word and other rich document applications;
+- an image for applications that accept bitmap content.
+
+The formula and its source image are kept in the local history store so you can revisit, edit, copy, or delete them later.
+
+## Keyboard shortcuts
+
+- `Alt + Shift + X` on Windows / `Alt + Cmd + X` on macOS — capture a new formula.
+
+## Development
+
+Requirements: Node.js 20+, Yarn 1.x, and a VLM API key for end-to-end recognition.
+
+```bash
+yarn install
+yarn dev
+```
+
+Build the renderer and Electron bundles:
+
+```bash
+yarn build
+```
+
+Build platform packages locally:
+
+```bash
+yarn build:win
+yarn build:mac
+```
+
+Tagged pushes matching `v*` trigger the GitHub Actions release workflow. Windows produces an NSIS installer; macOS produces DMG and ZIP packages using `Icon.icns`.
+
+## Architecture
+
+- **Electron + Vue 3** — desktop shell and renderer UI.
+- **Vite / electron-vite** — development and production bundling.
+- **LangChain OpenAI + LangGraph** — VLM model integration and recognition graph.
+- **KaTeX** — local LaTeX rendering.
+- **Pinia + lowdb** — application state and local history/subscription persistence.
+- **VFluent 3** — compact Fluent-inspired UI components.
 
 ## Acknowledgements
 
-This Project is Develop Based on [VFluentForElectron](https://github.com/Creator-SN/VFluentForElectron).
+MathFX is built with [VFluent 3](https://github.com/Creator-SN/VFluentForElectron) and the Electron ecosystem.
 
 ## License
 
-MIT License
-
-Copyright (c) 2024 Creator SN®
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+MathFX is released under the [MIT License](LICENSE).
